@@ -97,5 +97,24 @@ class BezierCurvesTest(unittest.TestCase):
         self.assertEqual(curve.derivative_points[2][curve.RANGE_STEP],
                          Vec3D.Vec3D(0, 2, 3))
 
+    def subdivision(self):
+        curve = BezierCurves(2)
+        first_point = Vec3D.Vec3D(0, 0, 0)
+        second_point = Vec3D.Vec3D(0, 1, 1)
+        third_point = Vec3D.Vec3D(0, 2, 3)
+        curve.append_point(first_point)
+        curve.append_point(second_point)
+        curve.append_point(third_point)
+
+        curve.curve_calculation(curve.control_points)
+
+        self.assertEqual(curve.subdiv_points_first[0][0], Vec3D.Vec3D(0, 0, 0))
+        self.assertEqual(curve.subdiv_points_first[0][1], Vec3D.Vec3D(0, 0, 0))
+        self.assertEqual(curve.subdiv_points_first[0][2], Vec3D.Vec3D(0, 0, 0))
+        self.assertEqual(curve.subdiv_points_last[0][0], Vec3D.Vec3D(0, 2, 3))
+        self.assertEqual(curve.subdiv_points_last[0][1], Vec3D.Vec3D(0, 1, 1))
+        self.assertEqual(curve.subdiv_points_last[0][2], Vec3D.Vec3D(0, 0, 0))
+
+
 if __name__ == '__main__':
     unittest.main()
