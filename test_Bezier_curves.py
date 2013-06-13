@@ -1,6 +1,6 @@
 import unittest
-import project.Vec3D
-from project.Bezier_curves import *
+import Vec3D
+from Bezier_curves import *
 
 
 class BezierCurvesTest(unittest.TestCase):

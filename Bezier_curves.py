@@ -37,11 +37,12 @@ class BezierCurves:
         return algr_step[degree]
 
     def curve_calculation(self, control_points, derivative=None):
+        key = self._degree - len(control_points) + 1
+        self.derivative_points[key] = []
+
         for t in range(self.RANGE_STEP + 1):
             param = t / self.RANGE_STEP
             if derivative:
-                key = self._degree - len(control_points) + 1
-                self.derivative_points[key] = []
                 self.derivative_points[key].append(self.deCasteljau_algorithm(
                                                    param,
                                                    control_points))
