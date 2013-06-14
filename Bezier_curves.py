@@ -1,3 +1,6 @@
+from collections import deque
+
+
 class BezierCurves:
     RANGE_STEP = 1000
 
@@ -7,8 +10,8 @@ class BezierCurves:
         self.curve_points = []
         self.derivative_control_points = []
         self.derivative_points = dict()
-        self.subdiv_points_first = dict()
-        self.subdiv_points_last = dict()
+        self.subdivision_left = dict()
+        self.subdivision_right = dict()
 
     def append_point(self, point):
         if len(self.control_points) == self._degree + 1:
@@ -21,20 +24,23 @@ class BezierCurves:
         algr_step.append([point for point in points])
         degree = len(points)
         subdiv_last = []
-        self.subdiv_points_first[param] = []
-        self.subdiv_points_last[param] = []
+        self.subdivision_left[param] = []
+        self.subdivision_right[param] = deque()
 
         for step in range(1, degree):
             algr_step.append([(1 - param) * algr_step[step - 1][point] +
                              param * algr_step[step - 1][point + 1]
                              for point in range(len(algr_step[step - 1]) - 1)])
 
-            self.subdiv_points_first[param].append(algr_step[step - 1][0])
-            subdiv_last.append(algr_step[step - 1][degree - step])
+            self.subdivision_left[param].append(algr_step[step - 1][0])
+            self.subdivision_right[param].appendleft(algr_step[step - 1]
+                                                              [degree - step])
 
-        self.subdiv_points_last[param] = subdiv_last.reverse()
+        algorithm_result = algr_step[degree - 1][0]
+        self.subdivision_left[param].append(algorithm_result)
+        self.subdivision_right[param].appendleft(algorithm_result)
 
-        return algr_step[degree - 1][0]
+        return algorithm_result
 
     def finite_difference(self, degree):
         algr_step = []
@@ -64,6 +70,19 @@ class BezierCurves:
     def curve_derivative(self, degree):
         derivative_control_points = self.finite_difference(degree)
         self.curve_calculation(derivative_control_points, True)
+
+    def degree_elevation(self):
+        elevation = []
+        elevation.append(self.control_points[0])
+
+        for i in range(1, self._degree):
+            point = ((i * self.control_points[i - 1] + (self._degree + 1 - i) *
+                     self.control_points[i]) * (1 / (self._degree + 1)))
+            elevation.append(point)
+
+        elevation.append(self.control_points[self._degree])
+
+        return elevation
 
     def draw_curve(self):
         return self.curve_points
