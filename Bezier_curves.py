@@ -7,9 +7,9 @@ class BezierCurves:
     def __init__(self, degree):
         self._degree = degree
         self.control_points = []
-        self.curve_points = []
+        self.curve = []
         self.derivative_control_points = []
-        self.derivative_points = dict()
+        self.derivative = dict()
         self.subdivision_left = dict()
         self.subdivision_right = dict()
 
@@ -52,24 +52,23 @@ class BezierCurves:
 
         return algr_step[degree]
 
-    def curve_calculation(self, control_points, derivative=None):
+    def _curve_calculation(self, control_points, derivative=None):
         key = self._degree - len(control_points) + 1
-        self.derivative_points[key] = []
-        curve_points = []
+        self.derivative[key] = []
 
         for t in range(self.RANGE_STEP + 1):
-            param = t / self.RANGE_STEP
+            parameter = t / self.RANGE_STEP
             if derivative:
-                self.derivative_points[key].append(self.deCasteljau_algorithm(
-                                                   param,
-                                                   control_points))
+                self.derivative[key].append(self.deCasteljau_algorithm(
+                                            parameter,
+                                            control_points))
             else:
-                self.curve_points.append(self.deCasteljau_algorithm(param,
-                                         control_points))
+                self.curve.append(self.deCasteljau_algorithm(parameter,
+                                  control_points))
 
-    def curve_derivative(self, degree):
+    def _derivative_calculation(self, degree):
         derivative_control_points = self.finite_difference(degree)
-        self.curve_calculation(derivative_control_points, True)
+        self._curve_calculation(derivative_control_points, True)
 
     def degree_elevation(self):
         elevation = []
@@ -85,7 +84,9 @@ class BezierCurves:
         return elevation
 
     def draw_curve(self):
-        return self.curve_points
+        self._curve_calculation(self.control_points)
+        return self.curve
 
     def draw_derivative(self):
-        return self.derivative_points
+        self._derivative_calculation(self.derivative_control_points, True)
+        return self.derivative

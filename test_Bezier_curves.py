@@ -4,72 +4,74 @@ from Bezier_curves import *
 
 
 class BezierCurvesTest(unittest.TestCase):
-    PARAMETER1 = 0.5
-    PARAMETER2 = 0
-    PARAMETER3 = 1
+    PARAMETERS = (0, 0.5, 1)
 
     def test_append_point(self):
-        point = Vec3D.Vec3D(1, 2, -1)
+        points = [Vec3D.Vec3D(1, 2, -1),
+                  Vec3D.Vec3D(2, 3, 4),
+                  Vec3D.Vec3D(-3, 4, 8),
+                  Vec3D.Vec3D(10, 10, 8)]
+
         curve = BezierCurves(3)
 
         for i in range(0, 4):
-            curve.append_point(point)
-            self.assertEqual(curve.control_points[i], point)
+            curve.append_point(points[i])
+            self.assertEqual(curve.control_points[i], points[i])
 
     def test_deCasteljau_algorithm(self):
         curve = BezierCurves(2)
-        first_point = Vec3D.Vec3D(0, 0, 0)
-        second_point = Vec3D.Vec3D(0, 1, 1)
-        third_point = Vec3D.Vec3D(1, 1, 1)
-        curve.append_point(first_point)
-        curve.append_point(second_point)
-        curve.append_point(third_point)
+        points = [Vec3D.Vec3D(0, 0, 0),
+                  Vec3D.Vec3D(0, 1, 1),
+                  Vec3D.Vec3D(1, 1, 1)]
+        result_points = [Vec3D.Vec3D(0, 0, 0),
+                         Vec3D.Vec3D(0.25, 0.75, 0.75),
+                         Vec3D.Vec3D(1, 1, 1)]
 
-        self.assertEqual(curve.deCasteljau_algorithm(self.PARAMETER1,
-                         curve.control_points), Vec3D.Vec3D(0.25, 0.75, 0.75))
-        self.assertEqual(curve.deCasteljau_algorithm(self.PARAMETER2,
-                         curve.control_points), Vec3D.Vec3D(0, 0, 0))
-        self.assertEqual(curve.deCasteljau_algorithm(self.PARAMETER3,
-                         curve.control_points), Vec3D.Vec3D(1, 1, 1))
+        for i in range(0, 3):
+            curve.append_point(points[i])
+
+        for i in range(0, 3):
+            self.assertEqual(curve.deCasteljau_algorithm(self.PARAMETERS[i],
+                             curve.control_points), result_points[i])
 
     def test_curve_interpolation(self):
         curve = BezierCurves(2)
-        first_point = Vec3D.Vec3D(0, 0, 0)
-        second_point = Vec3D.Vec3D(0, 1, 1)
-        third_point = Vec3D.Vec3D(1, 1, 1)
-        curve.append_point(first_point)
-        curve.append_point(second_point)
-        curve.append_point(third_point)
+        points = [Vec3D.Vec3D(0, 0, 0),
+                  Vec3D.Vec3D(0, 1, 1),
+                  Vec3D.Vec3D(1, 1, 1)]
 
-        curve.curve_calculation(curve.control_points)
-        self.assertEqual(curve.curve_points[0], Vec3D.Vec3D(0, 0, 0))
-        self.assertEqual(curve.curve_points[curve.RANGE_STEP],
+        for i in range(0, 3):
+            curve.append_point(points[i])
+
+        curve._curve_calculation(curve.control_points)
+
+        self.assertEqual(curve.curve[0], Vec3D.Vec3D(0, 0, 0))
+        self.assertEqual(curve.curve[curve.RANGE_STEP],
                          Vec3D.Vec3D(1, 1, 1))
 
     def test_linear_curves(self):
         curve = BezierCurves(2)
-        first_point = Vec3D.Vec3D(0, 0, 0)
-        second_point = Vec3D.Vec3D(0, 1, 1)
-        third_point = Vec3D.Vec3D(0, 2, 2)
-        curve.append_point(first_point)
-        curve.append_point(second_point)
-        curve.append_point(third_point)
+        points = [Vec3D.Vec3D(0, 0, 0),
+                  Vec3D.Vec3D(0, 1, 1),
+                  Vec3D.Vec3D(0, 2, 2)]
 
-        curve.curve_calculation(curve.control_points)
+        for i in range(0, 3):
+            curve.append_point(points[i])
 
-        self.assertEqual(curve.curve_points[int(curve.RANGE_STEP / 2)],
-                         second_point)
+        curve_points = curve.draw_curve()
+
+        self.assertEqual(curve.curve[int(curve.RANGE_STEP / 2)],
+                         points[1])
 
     def test_finite_difference(self):
         curve = BezierCurves(3)
-        first_point = Vec3D.Vec3D(0, 0, 0)
-        second_point = Vec3D.Vec3D(2, 8, 6)
-        third_point = Vec3D.Vec3D(3, 5, 4)
-        forth_point = Vec3D.Vec3D(4, 4, 5)
-        curve.append_point(first_point)
-        curve.append_point(second_point)
-        curve.append_point(third_point)
-        curve.append_point(forth_point)
+        points = [Vec3D.Vec3D(0, 0, 0),
+                  Vec3D.Vec3D(2, 8, 6),
+                  Vec3D.Vec3D(3, 5, 4),
+                  Vec3D.Vec3D(4, 4, 5)]
+
+        for i in range(0, 4):
+            curve.append_point(points[i])
 
         derivative = []
         derivative = curve.finite_difference(2)
@@ -81,51 +83,56 @@ class BezierCurvesTest(unittest.TestCase):
 
     def test_curve_derivative(self):
         curve = BezierCurves(3)
-        first_point = Vec3D.Vec3D(0, 0, 0)
-        second_point = Vec3D.Vec3D(2, 8, 6)
-        third_point = Vec3D.Vec3D(3, 5, 4)
-        forth_point = Vec3D.Vec3D(4, 4, 5)
-        curve.append_point(first_point)
-        curve.append_point(second_point)
-        curve.append_point(third_point)
-        curve.append_point(forth_point)
+        points = [Vec3D.Vec3D(0, 0, 0),
+                  Vec3D.Vec3D(2, 8, 6),
+                  Vec3D.Vec3D(3, 5, 4),
+                  Vec3D.Vec3D(4, 4, 5)]
 
-        curve.curve_derivative(2)
+        for i in range(0, 4):
+            curve.append_point(points[i])
 
-        self.assertEqual(curve.derivative_points[2][0],
+        curve._derivative_calculation(2)
+
+        self.assertEqual(curve.derivative[2][0],
                          Vec3D.Vec3D(-1, -11, -8))
-        self.assertEqual(curve.derivative_points[2][curve.RANGE_STEP],
+        self.assertEqual(curve.derivative[2][curve.RANGE_STEP],
                          Vec3D.Vec3D(0, 2, 3))
 
     def test_subdivision(self):
         curve = BezierCurves(2)
-        first_point = Vec3D.Vec3D(0, 0, 0)
-        second_point = Vec3D.Vec3D(0, 1, 1)
-        third_point = Vec3D.Vec3D(0, 2, 3)
-        curve.append_point(first_point)
-        curve.append_point(second_point)
-        curve.append_point(third_point)
+        points = [Vec3D.Vec3D(0, 0, 0),
+                  Vec3D.Vec3D(0, 1, 1),
+                  Vec3D.Vec3D(0, 2, 3)]
 
-        curve.curve_calculation(curve.control_points)
+        result_points = {'left': [Vec3D.Vec3D(0, 0, 0),
+                                  Vec3D.Vec3D(0, 0, 0),
+                                  Vec3D.Vec3D(0, 0, 0)],
+                         'right': [Vec3D.Vec3D(0, 0, 0),
+                                   Vec3D.Vec3D(0, 1, 1),
+                                   Vec3D.Vec3D(0, 2, 3)]}
 
-        self.assertEqual(curve.subdivision_left[0][0], Vec3D.Vec3D(0, 0, 0))
-        self.assertEqual(curve.subdivision_left[0][1], Vec3D.Vec3D(0, 0, 0))
-        self.assertEqual(curve.subdivision_left[0][2], Vec3D.Vec3D(0, 0, 0))
-        self.assertEqual(curve.subdivision_right[0][0], Vec3D.Vec3D(0, 0, 0))
-        self.assertEqual(curve.subdivision_right[0][1], Vec3D.Vec3D(0, 1, 1))
-        self.assertEqual(curve.subdivision_right[0][2], Vec3D.Vec3D(0, 2, 3))
+        for i in range(0, 3):
+            curve.append_point(points[i])
+
+        curve_points = curve.draw_curve()
+
+        for i in range(0, 3):
+            self.assertEqual(curve.subdivision_left[0][i],
+                             result_points['left'][i])
+            self.assertEqual(curve.subdivision_right[0][i],
+                             result_points['right'][i])
 
     def test_degree_elevation(self):
         curve = BezierCurves(2)
-        first_point = Vec3D.Vec3D(0, 0, 0)
-        second_point = Vec3D.Vec3D(0, 1, 1)
-        third_point = Vec3D.Vec3D(0, 2, 3)
-        curve.append_point(first_point)
-        curve.append_point(second_point)
-        curve.append_point(third_point)
+        points = [Vec3D.Vec3D(0, 0, 0),
+                  Vec3D.Vec3D(0, 1, 1),
+                  Vec3D.Vec3D(0, 2, 3)]
+
+        for i in range(0, 3):
+            curve.append_point(points[i])
 
         elevation = curve.degree_elevation()
-        print(elevation[1].z)
+
         self.assertEqual(elevation[1], Vec3D.Vec3D(0, 2 / 3, 2 / 3))
 
 if __name__ == '__main__':
