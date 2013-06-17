@@ -49,5 +49,8 @@ class SplineC0:
                             condition].append_point(point)
 
     def draw_spline(self):
+        draw = []
         for curve in self.partial_curves:
-            curve.draw_curve()
+            draw.append(curve.draw_curve())
+
+        return draw
