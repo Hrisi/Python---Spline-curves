@@ -1,11 +1,10 @@
 from collections import deque
 
 
-class BezierCurves:
+class BezierCurve:
     RANGE_STEP = 1000
 
-    def __init__(self, degree):
-        self._degree = degree
+    def __init__(self):
         self.control_points = []
         self.curve = []
         self.derivative_control_points = []
@@ -14,9 +13,6 @@ class BezierCurves:
         self.subdivision_right = dict()
 
     def append_point(self, point):
-        if len(self.control_points) == self._degree + 1:
-            raise IndexError
-
         self.control_points.append(point)
 
     def deCasteljau_algorithm(self, param, points):
@@ -53,7 +49,7 @@ class BezierCurves:
         return algr_step[degree]
 
     def _curve_calculation(self, control_points, derivative=None):
-        key = self._degree - len(control_points) + 1
+        key = len(self.control_points) - len(control_points)
         self.derivative[key] = []
 
         for t in range(self.RANGE_STEP + 1):
@@ -71,15 +67,16 @@ class BezierCurves:
         self._curve_calculation(derivative_control_points, True)
 
     def degree_elevation(self):
+        degree = len(self.control_points) - 1
         elevation = []
         elevation.append(self.control_points[0])
 
-        for i in range(1, self._degree):
-            point = ((i * self.control_points[i - 1] + (self._degree + 1 - i) *
-                     self.control_points[i]) * (1 / (self._degree + 1)))
+        for i in range(1, degree):
+            point = ((i * self.control_points[i - 1] + (degree + 1 - i) *
+                     self.control_points[i]) * (1 / (degree + 1)))
             elevation.append(point)
 
-        elevation.append(self.control_points[self._degree])
+        elevation.append(self.control_points[degree])
 
         return elevation
 

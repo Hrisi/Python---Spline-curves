@@ -6,36 +6,30 @@ class InvalidData(Exception):
 
 
 class SplineC0:
-    NEGATIVE_DATA_MESSAGE = "Please insert positive numbers!"
+    NEGATIVE_DATA_MESSAGE = "Please insert a positive degree!"
     NOT_INT_DATA_MESSAGE = "Please insert integers!"
-    NOT_LOGIC_CORRECT_MESSAGE = "Degree should be less than Points Count!"
-    WRONG_POINTS_COUNT_MESSAGE = "Please insert the correct count of points!"
+    NONE_INTERVALS_MESSAGE = "Please insert intervals!"
 
-    def __init__(self, degree, points_count, intervals=None):
-        if degree < 0 or points_count < 0:
+    def __init__(self, degree, intervals):
+        if degree < 0:
             raise InvalidData(self.NEGATIVE_DATA_MESSAGE)
 
-        if not isinstance(degree, int) or not isinstance(points_count, int):
+        if not isinstance(degree, int):
             raise InvalidData(self.NOT_INT_DATA_MESSAGE)
 
-        if (degree >= points_count):
-            raise InvalidData(self.NOT_LOGIC_CORRECT_MESSAGE)
-
-        if (points_count % degree != 1):
-            raise InvalidData(self.WRONG_POINTS_COUNT_MESSAGE)
+        if not len(intervals):
+            raise InvalidData(self.NONE_INTERVALS_MESSAGE)
 
         self._degree = degree
-        self.points_count = points_count
+        self.points_count = len(intervals) * degree + 1
         self.control_points = []
         self.partial_curves = []
         self.intervals = []
 
-        if intervals is not None:
-            for count in range(0, len(intervals)):
-                self.intervals.append(intervals[count][1] -
-                                      intervals[count][0])
+        for count in range(0, len(intervals)):
+            self.intervals.append(intervals[count][1] - intervals[count][0])
 
-        for count in range(0, self.points_count // self._degree):
+        for count in range(0, len(intervals)):
             self.partial_curves.append(Bezier_curves.BezierCurve())
 
     def append_point(self, point):
@@ -44,14 +38,14 @@ class SplineC0:
 
         self.control_points.append(point)
 
-        partial_curve_count = (len(self.control_points) - 1) // self._degree
+        partial_curves_count = (len(self.control_points) - 1) // self._degree
         condition = (self.points_count == len(self.control_points))
 
         if ((len(self.control_points) - 1) % self._degree == 0 and
                 (not condition) and len(self.control_points) > 1):
-            self.partial_curves[partial_curve_count - 1].append_point(point)
+            self.partial_curves[partial_curves_count - 1].append_point(point)
 
-        self.partial_curves[partial_curve_count -
+        self.partial_curves[partial_curves_count -
                             condition].append_point(point)
 
     def draw_spline(self):

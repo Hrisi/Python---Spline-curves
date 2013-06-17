@@ -12,14 +12,14 @@ class BezierCurvesTest(unittest.TestCase):
                   Vec3D.Vec3D(-3, 4, 8),
                   Vec3D.Vec3D(10, 10, 8)]
 
-        curve = BezierCurves(3)
+        curve = BezierCurves()
 
         for i in range(0, 4):
             curve.append_point(points[i])
             self.assertEqual(curve.control_points[i], points[i])
 
     def test_deCasteljau_algorithm(self):
-        curve = BezierCurves(2)
+        curve = BezierCurves()
         points = [Vec3D.Vec3D(0, 0, 0),
                   Vec3D.Vec3D(0, 1, 1),
                   Vec3D.Vec3D(1, 1, 1)]
@@ -35,7 +35,7 @@ class BezierCurvesTest(unittest.TestCase):
                              curve.control_points), result_points[i])
 
     def test_curve_interpolation(self):
-        curve = BezierCurves(2)
+        curve = BezierCurves()
         points = [Vec3D.Vec3D(0, 0, 0),
                   Vec3D.Vec3D(0, 1, 1),
                   Vec3D.Vec3D(1, 1, 1)]
@@ -50,7 +50,7 @@ class BezierCurvesTest(unittest.TestCase):
                          Vec3D.Vec3D(1, 1, 1))
 
     def test_linear_curves(self):
-        curve = BezierCurves(2)
+        curve = BezierCurves()
         points = [Vec3D.Vec3D(0, 0, 0),
                   Vec3D.Vec3D(0, 1, 1),
                   Vec3D.Vec3D(0, 2, 2)]
@@ -64,7 +64,7 @@ class BezierCurvesTest(unittest.TestCase):
                          points[1])
 
     def test_finite_difference(self):
-        curve = BezierCurves(3)
+        curve = BezierCurves()
         points = [Vec3D.Vec3D(0, 0, 0),
                   Vec3D.Vec3D(2, 8, 6),
                   Vec3D.Vec3D(3, 5, 4),
@@ -82,7 +82,7 @@ class BezierCurvesTest(unittest.TestCase):
         self.assertEqual(derivative[0], Vec3D.Vec3D(1, 13, 11))
 
     def test_curve_derivative(self):
-        curve = BezierCurves(3)
+        curve = BezierCurves()
         points = [Vec3D.Vec3D(0, 0, 0),
                   Vec3D.Vec3D(2, 8, 6),
                   Vec3D.Vec3D(3, 5, 4),
@@ -99,7 +99,7 @@ class BezierCurvesTest(unittest.TestCase):
                          Vec3D.Vec3D(0, 2, 3))
 
     def test_subdivision(self):
-        curve = BezierCurves(2)
+        curve = BezierCurves()
         points = [Vec3D.Vec3D(0, 0, 0),
                   Vec3D.Vec3D(0, 1, 1),
                   Vec3D.Vec3D(0, 2, 3)]
@@ -123,7 +123,7 @@ class BezierCurvesTest(unittest.TestCase):
                              result_points['right'][i])
 
     def test_degree_elevation(self):
-        curve = BezierCurves(2)
+        curve = BezierCurves()
         points = [Vec3D.Vec3D(0, 0, 0),
                   Vec3D.Vec3D(0, 1, 1),
                   Vec3D.Vec3D(0, 2, 3)]
