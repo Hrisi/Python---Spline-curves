@@ -7,10 +7,10 @@ from SplinesC1 import *
 class TestSplinesC1(unittest.TestCase):
     def test_raise_none_existing_spline_exception(self):
         with self.assertRaises(SplinesC0.InvalidData):
-            spline = SplineC1(1, [[1, 2], [3, 4]])
+            spline = SplineC1(1, [[1, 3], [3, 4]])
 
     def test_raise_exception_while_appending_deBoor_points(self):
-        spline = SplineC1(3, [[1, 2], [3, 4]])
+        spline = SplineC1(3, [[1, 3], [3, 4]])
 
         for count in range(0, 6):
             spline.append_deBoor_point(Vec3D.Vec3D(count, count + 1, count))
@@ -19,7 +19,7 @@ class TestSplinesC1(unittest.TestCase):
             spline.append_deBoor_point(Vec3D.Vec3D(1, 1, 1))
 
     def test_Bezier_points_count(self):
-        spline = SplineC1(3, [[1, 2], [3, 4]])
+        spline = SplineC1(3, [[1, 3], [3, 4]])
 
         for count in range(0, 6):
             spline.append_deBoor_point(Vec3D.Vec3D(count, count + 1, count))
@@ -31,15 +31,15 @@ class TestSplinesC1(unittest.TestCase):
     def test_correct_calculation_Bezier_points(self):
         points = [Vec3D.Vec3D(0, 1, 1),
                   Vec3D.Vec3D(0, 2, 1),
-                  Vec3D.Vec3D(0, 2, 2),
-                  Vec3D.Vec3D(2, 2, 2),
-                  Vec3D.Vec3D(4, 2, 2),
+                  Vec3D.Vec3D(0, 3, 3),
+                  Vec3D.Vec3D(2, 5, 5),
+                  Vec3D.Vec3D(3, 6, 6),
                   Vec3D.Vec3D(2, 2, 6),
                   Vec3D.Vec3D(2, 2, 7.5),
                   Vec3D.Vec3D(2, 2, 12),
                   Vec3D.Vec3D(3, 5, 8),
                   Vec3D.Vec3D(4, 2, 9)]
-        spline = SplineC1(3, [[1, 2], [3, 4], [4, 7]])
+        spline = SplineC1(3, [[1, 3], [3, 4], [4, 7]])
 
         for count in range(0, 3):
             spline.append_deBoor_point(points[count])
@@ -64,7 +64,7 @@ class TestSplinesC1(unittest.TestCase):
                   Vec3D.Vec3D(12, 12, 8),
                   Vec3D.Vec3D(10, 15, 8),
                   Vec3D.Vec3D(10, 12, 13)]
-        spline = SplineC1(3, [[1, 2], [3, 4]])
+        spline = SplineC1(3, [[1, 3], [3, 4]])
 
         for count in range(0, 3):
             spline.append_deBoor_point(points[count])
