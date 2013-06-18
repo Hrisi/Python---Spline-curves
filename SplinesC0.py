@@ -9,6 +9,8 @@ class SplineC0:
     NEGATIVE_DATA_MESSAGE = "Please insert a positive degree!"
     NOT_INT_DATA_MESSAGE = "Please insert integers!"
     NONE_INTERVALS_MESSAGE = "Please insert intervals!"
+    INCORRECT_COUNT_CONTROL_POINTS = "Please insert more control points!"
+    INCORRECT_INTERVAL_DIVISION = "Incorrect intervals inserted. Try again!"
 
     def __init__(self, degree, intervals):
         if degree < 0:
@@ -17,8 +19,13 @@ class SplineC0:
         if not isinstance(degree, int):
             raise InvalidData(self.NOT_INT_DATA_MESSAGE)
 
-        if not len(intervals):
+        if not intervals:
             raise InvalidData(self.NONE_INTERVALS_MESSAGE)
+
+        if len(intervals) > 1:
+            for count in range(1, len(intervals)):
+                if intervals[count - 1][1] != intervals[count][0]:
+                    raise InvalidData(self.INCORRECT_INTERVAL_DIVISION)
 
         self._degree = degree
         self.points_count = len(intervals) * degree + 1
@@ -49,6 +56,9 @@ class SplineC0:
                             condition].append_point(point)
 
     def draw_spline(self):
+        if len(self.control_points) < self.points_count:
+            raise InvalidData(self.INCORRECT_COUNT_CONTROL_POINTS)
+
         draw = []
         for curve in self.partial_curves:
             draw.append(curve.draw_curve())
