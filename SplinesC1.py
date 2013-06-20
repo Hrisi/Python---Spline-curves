@@ -3,14 +3,13 @@ import SplinesC0
 
 class SplineC1:
     NONE_EXISTING_SPLINE_MESSAGE = "Please increase the degree!"
-    INCORRECT_COUNT_DEBOOR_POINTS = "Please insert more deBoor points!"
+    INCORRECT_COUNT_DEBOOR_POINTS_MESSAGE = "Please insert more deBoor points!"
 
-    def __init__(self, degree, interval):
-
+    def __init__(self, degree, intervals):
         if (degree <= 1):
             raise SplinesC0.InvalidData(self.NONE_EXISTING_SPLINE_MESSAGE)
 
-        self.splineC0 = SplinesC0.SplineC0(degree, interval)
+        self.splineC0 = SplinesC0.SplineC0(degree, intervals)
         self.deBoor_points = []
         self.partial_curve_counter = 0
 
@@ -44,7 +43,9 @@ class SplineC1:
     def draw_spline(self):
         if len(self.deBoor_points) < (self.splineC0.points_count -
                                       len(self.splineC0.intervals) + 1):
-            raise SplinesC0.InvalidData(self.INCORRECT_COUNT_DEBOOR_POINTS)
+            raise SplinesC0.InvalidData(
+                self.INCORRECT_COUNT_DEBOOR_POINTS_MESSAGE)
 
         self._append_Bezier_points()
+
         return self.splineC0.draw_spline()
