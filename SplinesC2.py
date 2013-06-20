@@ -29,9 +29,6 @@ class SplineC2:
         intervals_count = len(intervals)
 
         for index in range(0, intervals_count):
-            denominator = []
-            numerator = []
-            calculated_point = []
 
             if index == 0:
                 previous_interval = 0
@@ -43,29 +40,30 @@ class SplineC2:
                 previous_interval, next_interval = (intervals[index - 1],
                                                     intervals[index + 1])
 
-            denominator.append(previous_interval + intervals[index] +
-                               next_interval)
-            numerator.append(
-                next_interval *
-                self.deBoor_points[index + degree - 2] +
-                intervals[index] *
-                self.deBoor_points[index + degree - 1])
+            denominator = (previous_interval + intervals[index] +
+                           next_interval)
 
-            calculated_point.append(numerator[0] * (1 / denominator[0]))
-            self.splineC1.append_deBoor_point(calculated_point[0])
-
-            if index > 0 and index < intervals_count - 1:
-                print("if")
-                numerator.append((intervals[index] +
+            if index > 0:
+                numerator_two = ((intervals[index] +
                                   next_interval) *
-                                 self.deBoor_points[index + degree - 1] +
-                                 intervals[index] *
-                                 self.deBoor_points[index + degree])
+                                 self.deBoor_points[index + degree - 2] +
+                                 previous_interval *
+                                 self.deBoor_points[index + degree - 1])
 
-                calculated_point.append(numerator[1] * (1 / denominator[0]))
-                self.splineC1.append_deBoor_point(calculated_point[1])
+                calculated_point_two = numerator_two * (1 / denominator)
+                self.splineC1.append_deBoor_point(calculated_point_two)
 
-        for index in range(1, 3):
+            if index < intervals_count - 1:
+                numerator_one = (
+                    next_interval *
+                    self.deBoor_points[index + degree - 2] +
+                    (intervals[index] + previous_interval) *
+                    self.deBoor_points[index + degree - 1])
+
+                calculated_point_one = numerator_one * (1 / denominator)
+                self.splineC1.append_deBoor_point(calculated_point_one)
+
+        for index in range(degree - 1, 0, -1):
             self.splineC1.append_deBoor_point(self.deBoor_points[
                 len(self.deBoor_points) - index])
 
