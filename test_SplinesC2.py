@@ -49,23 +49,24 @@ class TestSplinesC2(unittest.TestCase):
         spline = SplineC2(3, [[1, 2], [2, 5]])
         points = [Vec3D.Vec3D(1, 1, 1),
                   Vec3D.Vec3D(4, 4, 4),
-                  Vec3D.Vec3D(5, 4, 4),
                   Vec3D.Vec3D(8, 4, 4),
-                  Vec3D.Vec3D(7, 3, 4),
                   Vec3D.Vec3D(4, 8, 4),
                   Vec3D.Vec3D(8, 8, 6)]
 
-        spline.append_deBoor_point(points[0])
-        spline.append_deBoor_point(points[1])
-        spline.append_deBoor_point(points[3])
-        spline.append_deBoor_point(points[5])
-        spline.append_deBoor_point(points[6])
+        result_points = [Vec3D.Vec3D(1, 1, 1),
+                         Vec3D.Vec3D(4, 4, 4),
+                         Vec3D.Vec3D(5, 4, 4),
+                         Vec3D.Vec3D(7, 5, 4),
+                         Vec3D.Vec3D(4, 8, 4),
+                         Vec3D.Vec3D(8, 8, 6)]
+
+        for index in range(0, 5):
+            spline.append_deBoor_point(points[index])
 
         spline.draw_spline()
-        print(spline.splineC1.deBoor_points)
-        for index in range(0, 7):
-            print(index, spline.splineC1.deBoor_points[index].x)
-            self.assertEqual(points[index],
+
+        for index in range(0, 6):
+            self.assertEqual(result_points[index],
                              spline.splineC1.deBoor_points[index])
 
 if __name__ == '__main__':
