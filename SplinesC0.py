@@ -39,6 +39,9 @@ class SplineC0:
         for count in range(0, len(intervals)):
             self.partial_curves.append(Bezier_curves.BezierCurve())
 
+        self.to_be_drawn = None
+        self.control_polygon_to_be_drawn = None
+
     def append_point(self, point):
         if len(self.control_points) == self.points_count:
             raise IndexError

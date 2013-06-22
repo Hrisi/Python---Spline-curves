@@ -13,6 +13,9 @@ class SplineC1:
         self.deBoor_points = []
         self.partial_curve_counter = 0
 
+        self.to_be_drawn = None
+        self.control_polygon_to_be_drawn = None
+
     def append_deBoor_point(self, point):
         if len(self.deBoor_points) == (self.splineC0.points_count -
                                        len(self.splineC0.intervals) + 1):

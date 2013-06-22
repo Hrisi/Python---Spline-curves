@@ -61,7 +61,7 @@ class BezierCurvesTest(unittest.TestCase):
         for i in range(0, 3):
             self.curve.append_point(points[i])
 
-        curve_points = self.curve.draw_curve()
+        curve_points = self.curve.draw()
 
         self.assertEqual(self.curve.curve[int(self.curve.RANGE_STEP / 2)],
                          points[1])
@@ -114,7 +114,7 @@ class BezierCurvesTest(unittest.TestCase):
         for i in range(0, 3):
             self.curve.append_point(points[i])
 
-        curve_points = self.curve.draw_curve()
+        curve_points = self.curve.draw()
 
         for i in range(0, 3):
             self.assertEqual(self.curve.subdivision_left[0][i],

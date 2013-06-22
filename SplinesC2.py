@@ -10,6 +10,9 @@ class SplineC2:
         self.splineC1 = SplinesC1.SplineC1(degree, intervals)
         self.deBoor_points = []
 
+        self.to_be_drawn = None
+        self.control_polygon_to_be_drawn = None
+
     def append_deBoor_point(self, point):
         if len(self.deBoor_points) == (
                 2 * (-1 + self.splineC1.splineC0._degree) +

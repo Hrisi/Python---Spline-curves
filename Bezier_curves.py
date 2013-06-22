@@ -12,6 +12,10 @@ class BezierCurve:
         self.subdivision_left = dict()
         self.subdivision_right = dict()
 
+        self.to_be_drawn = None
+        self.derivatives_to_be_drawn = set()
+        self.control_polygon_to_be_drawn = None
+
     def append_point(self, point):
         self.control_points.append(point)
 
@@ -80,10 +84,10 @@ class BezierCurve:
 
         return elevation
 
-    def draw_curve(self):
+    def draw(self):
         self._curve_calculation(self.control_points)
         return self.curve
 
-    def draw_derivative(self):
-        self._derivative_calculation(self.derivative_control_points, True)
-        return self.derivative
+    def draw_derivative(self, degree):
+        self._derivative_calculation(degree)
+        return self.derivative[degree]
