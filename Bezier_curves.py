@@ -88,6 +88,14 @@ class BezierCurve:
     def replace_point(self, index, point):
         self.control_points[index] = point
         self.are_points_calculated = False
+        self.nullify()
+
+    def nullify(self):
+        self.curve_points = []
+        self.derivative = []
+        self.derivative_control_points = []
+        self.subdivision_left = dict()
+        self.subdivision_right = dict()
 
     def draw(self):
         if not self.are_points_calculated:

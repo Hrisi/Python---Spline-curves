@@ -65,6 +65,12 @@ class SplineC0:
         for curve in self.partial_curves:
             curve.are_points_calculated = False
         self.are_points_calculated = False
+        self.nullify()
+
+    def nullify(self):
+        for curve in self.partial_curves:
+            curve.nullify()
+        self._spline_points = []
 
     def draw(self):
         if len(self.control_points) < self.points_count:

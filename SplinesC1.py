@@ -11,8 +11,8 @@ class SplineC1:
 
         self.splineC0 = SplinesC0.SplineC0(degree, intervals)
         self.deBoor_points = []
-        self.partial_curve_counter = 0
         self.control_points = []
+        self.partial_curve_counter = 0
 
         self.to_be_drawn = False
         self.control_polygon_Bezier_to_be_drawn = False
@@ -48,6 +48,18 @@ class SplineC1:
                 self.splineC0.append_point(calculated_point)
 
         self.control_points += self.splineC0.control_points
+
+    def replace_point(self, index, point):
+        self.deBoor_points[index] = point
+        self.splineC0.are_points_calculated = False
+        for curve in self.splineC0.partial_curves:
+            curve.are_points_calculated = False
+        self.are_points_calculated = False
+        self.nullify()
+
+    def nullify(self):
+        self.splineC0.nullify()
+        self.control_points = []
 
     def draw(self):
         if len(self.deBoor_points) < (self.splineC0.points_count -
