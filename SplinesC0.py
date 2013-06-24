@@ -32,6 +32,7 @@ class SplineC0:
         self.control_points = []
         self.partial_curves = []
         self.intervals = []
+        self._spline_points = []
 
         for count in range(0, len(intervals)):
             self.intervals.append(intervals[count][1] - intervals[count][0])
@@ -39,8 +40,9 @@ class SplineC0:
         for count in range(0, len(intervals)):
             self.partial_curves.append(Bezier_curves.BezierCurve())
 
-        self.to_be_drawn = None
-        self.control_polygon_to_be_drawn = None
+        self.to_be_drawn = False
+        self.control_polygon_to_be_drawn = False
+        self.are_points_calculated = False
 
     def append_point(self, point):
         if len(self.control_points) == self.points_count:
@@ -58,12 +60,14 @@ class SplineC0:
         self.partial_curves[partial_curves_count -
                             condition].append_point(point)
 
-    def draw_spline(self):
+    def draw(self):
         if len(self.control_points) < self.points_count:
             raise InvalidData(self.INCORRECT_COUNT_CONTROL_POINTS)
 
-        draw = []
-        for curve in self.partial_curves:
-            draw.append(curve.draw_curve())
+        if not self.are_points_calculated:
+            for curve in self.partial_curves:
+                for point in curve.draw():
+                    self._spline_points.append(point)
+            self.are_points_calculated = True
 
-        return draw
+        return self._spline_points

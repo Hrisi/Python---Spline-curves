@@ -12,9 +12,12 @@ class SplineC1:
         self.splineC0 = SplinesC0.SplineC0(degree, intervals)
         self.deBoor_points = []
         self.partial_curve_counter = 0
+        self.control_points = []
 
-        self.to_be_drawn = None
-        self.control_polygon_to_be_drawn = None
+        self.to_be_drawn = False
+        self.control_polygon_Bezier_to_be_drawn = False
+        self.control_polygon_deBoor_to_be_drawn = False
+        self.are_points_calculated = False
 
     def append_deBoor_point(self, point):
         if len(self.deBoor_points) == (self.splineC0.points_count -
@@ -22,6 +25,7 @@ class SplineC1:
             raise IndexError
 
         self.deBoor_points.append(point)
+        print(point)
 
     def _append_Bezier_points(self):
         counter = 0
@@ -43,12 +47,16 @@ class SplineC1:
                 calculated_point = numerator * (1 / denominator)
                 self.splineC0.append_point(calculated_point)
 
-    def draw_spline(self):
+        self.control_points += self.splineC0.control_points
+
+    def draw(self):
         if len(self.deBoor_points) < (self.splineC0.points_count -
                                       len(self.splineC0.intervals) + 1):
             raise SplinesC0.InvalidData(
                 self.INCORRECT_COUNT_DEBOOR_POINTS_MESSAGE)
 
-        self._append_Bezier_points()
+        if not self.are_points_calculated:
+            self._append_Bezier_points()
+            self.are_points_calculated = True
 
-        return self.splineC0.draw_spline()
+        return self.splineC0.draw()

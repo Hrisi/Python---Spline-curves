@@ -24,7 +24,7 @@ class TestSplinesC1(unittest.TestCase):
         for count in range(0, 6):
             spline.append_deBoor_point(Vec3D.Vec3D(count, count + 1, count))
 
-        spline.draw_spline()
+        spline.draw()
         self.assertEqual(spline.splineC0.points_count,
                          len(spline.splineC0.control_points))
 
@@ -50,7 +50,7 @@ class TestSplinesC1(unittest.TestCase):
         for count in range(7, 10):
             spline.append_deBoor_point(points[count])
 
-        spline.draw_spline()
+        spline.draw()
 
         for count in range(0, 10):
             self.assertEqual(points[count],
@@ -70,7 +70,7 @@ class TestSplinesC1(unittest.TestCase):
             spline.append_deBoor_point(points[count])
 
         with self.assertRaises(SplinesC0.InvalidData):
-            spline.draw_spline()
+            spline.draw()
 
 if __name__ == '__main__':
     unittest.main()

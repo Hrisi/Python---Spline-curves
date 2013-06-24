@@ -74,7 +74,7 @@ class SplinesC0Test(unittest.TestCase):
             spline.append_point(points[i])
 
         with self.assertRaises(InvalidData):
-            spline.draw_spline()
+            spline.draw()
 
 if __name__ == '__main__':
     unittest.main()

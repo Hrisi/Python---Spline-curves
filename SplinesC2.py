@@ -9,9 +9,13 @@ class SplineC2:
 
         self.splineC1 = SplinesC1.SplineC1(degree, intervals)
         self.deBoor_points = []
+        self.control_points = []
 
-        self.to_be_drawn = None
-        self.control_polygon_to_be_drawn = None
+        self.to_be_drawn = False
+        self.control_polygon_to_be_drawn = False
+        self.are_points_calculated = False
+        self.control_polygon_Bezier_to_be_drawn = False
+        self.control_polygon_deBoor_to_be_drawn = False
 
     def append_deBoor_point(self, point):
         if len(self.deBoor_points) == (
@@ -32,7 +36,6 @@ class SplineC2:
         intervals_count = len(intervals)
 
         for index in range(0, intervals_count):
-
             if index == 0:
                 previous_interval = 0
                 next_interval = intervals[index + 1]
@@ -47,6 +50,7 @@ class SplineC2:
                            next_interval)
 
             if index > 0:
+                print('> 0')
                 numerator_two = ((intervals[index] +
                                   next_interval) *
                                  self.deBoor_points[index + degree - 2] +
@@ -57,6 +61,7 @@ class SplineC2:
                 self.splineC1.append_deBoor_point(calculated_point_two)
 
             if index < intervals_count - 1:
+                print('< int')
                 numerator_one = (
                     next_interval *
                     self.deBoor_points[index + degree - 2] +
@@ -70,12 +75,17 @@ class SplineC2:
             self.splineC1.append_deBoor_point(self.deBoor_points[
                 len(self.deBoor_points) - index])
 
-    def draw_spline(self):
+        self.control_points = self.splineC1.control_points
+
+    def draw(self):
         if len(self.deBoor_points) < (
                 2 * (-1 + self.splineC1.splineC0._degree) +
                 len(self.splineC1.splineC0.intervals) - 1):
             raise InvalidData(
                 self.splineC1.INCORRECT_COUNT_DEBOOR_POINTS_MESSAGE)
 
-        self._append_splineC1_point()
-        self.splineC1.draw_spline()
+        if not self.are_points_calculated:
+            self._append_splineC1_point()
+            self.are_points_calculated = True
+
+        return self.splineC1.draw()
