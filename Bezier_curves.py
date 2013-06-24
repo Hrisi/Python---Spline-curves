@@ -85,6 +85,10 @@ class BezierCurve:
 
         return elevation
 
+    def replace_point(self, index, point):
+        self.control_points[index] = point
+        self.are_points_calculated = False
+
     def draw(self):
         if not self.are_points_calculated:
             self._curve_calculation(self.control_points)

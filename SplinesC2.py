@@ -77,6 +77,14 @@ class SplineC2:
 
         self.control_points = self.splineC1.control_points
 
+    def replace_point(self, index, point):
+        self.deBoor_points[index] = point
+        self.splineC1.are_points_calculated = False
+        self.splineC1.splineC0.are_points_calculated = False
+        for curve in self.splineC1.splineC0.partial_curves:
+            curve.are_points_calculated = False
+        self.are_points_calculated = False
+
     def draw(self):
         if len(self.deBoor_points) < (
                 2 * (-1 + self.splineC1.splineC0._degree) +
