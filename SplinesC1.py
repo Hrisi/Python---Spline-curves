@@ -27,39 +27,58 @@ class SplineC1:
         self.deBoor_points.append(point)
         print(point)
 
+    def _calculate_Bezier_points(self, counter, index):
+        denominator = (self.splineC0.intervals[counter - 1] +
+                       self.splineC0.intervals[counter])
+        numerator = (self.splineC0.intervals[counter] *
+                     self.deBoor_points[index] +
+                     self.splineC0.intervals[counter - 1] *
+                     self.deBoor_points[index + 1])
+        calculated_point = numerator * (1 / denominator)
+
+        return calculated_point
+
     def _append_Bezier_points(self):
         counter = 0
 
-        for count_point in range(0, len(self.deBoor_points)):
-            self.splineC0.append_point(self.deBoor_points[count_point])
+        for index in range(0, len(self.deBoor_points)):
+            self.splineC0.append_point(self.deBoor_points[index])
             len_points = len(self.splineC0.control_points)
 
             if (len_points % self.splineC0._degree == 0 and
                     len_points < (self.splineC0.points_count - 1) and
-                    count_point > 0):
+                    index > 0):
                 counter += 1
-                denominator = (self.splineC0.intervals[counter - 1] +
-                               self.splineC0.intervals[counter])
-                numerator = (self.splineC0.intervals[counter] *
-                             self.deBoor_points[count_point] +
-                             self.splineC0.intervals[counter - 1] *
-                             self.deBoor_points[count_point + 1])
-                calculated_point = numerator * (1 / denominator)
+                calculated_point = self._calculate_Bezier_points(counter,
+                                                                 index)
                 self.splineC0.append_point(calculated_point)
 
         self.control_points += self.splineC0.control_points
 
-    def replace_point(self, index, point):
-        self.deBoor_points[index] = point
-        self.splineC0.are_points_calculated = False
-        for curve in self.splineC0.partial_curves:
-            curve.are_points_calculated = False
-        self.are_points_calculated = False
-        self.nullify()
+    def _movement_precalculation_Bezier_points(self):
+        counter = 0
+        for index in range(0, len(self.deBoor_points)):
+            if ((index + 1) % self.splineC0._degree == 0 and
+                    index < (len(self.deBoor_points) - 1) and
+                    index >= 0):
+                counter += 1
+                calculated_point = self._calculate_Bezier_points(counter,
+                                                                 index)
+                self.splineC0.replace_point(index + 1, calculated_point)
 
-    def nullify(self):
-        self.splineC0.nullify()
-        self.control_points = []
+        self.control_points = self.splineC0.control_points
+
+    def replace_point(self, index, point):
+        for partial_curve_count in range(
+                1, len(self.splineC0.partial_curves) + 1):
+            if (index < partial_curve_count * self.splineC0._degree or
+                    partial_curve_count == len(self.splineC0.partial_curves)):
+                index_for_splineC0 = index + partial_curve_count - 1
+                break
+
+        self.deBoor_points[index] = point
+        self._movement_precalculation_Bezier_points()
+        self.splineC0.replace_point(index_for_splineC0, point)
 
     def draw(self):
         if len(self.deBoor_points) < (self.splineC0.points_count -

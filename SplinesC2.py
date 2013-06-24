@@ -79,19 +79,13 @@ class SplineC2:
 
     def replace_point(self, index, point):
         self.deBoor_points[index] = point
-        self.splineC1.are_points_calculated = False
-        self.splineC1.nullify()
-        self.splineC1.splineC0.are_points_calculated = False
-
-        for curve in self.splineC1.splineC0.partial_curves:
-            curve.are_points_calculated = False
-
-        self.are_points_calculated = False
         self.nullify()
 
     def nullify(self):
-        self.splineC1.nullify()
+        self.are_points_calculated = False
+        self.splineC1.deBoor_points = []
         self.control_points = []
+        self.splineC1.nullify()
 
     def draw(self):
         if len(self.deBoor_points) < (

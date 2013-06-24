@@ -61,18 +61,48 @@ class SplineC0:
                             condition].append_point(point)
 
     def replace_point(self, index, point):
-        self.control_points[index] = point
-        for curve in self.partial_curves:
-            curve.are_points_calculated = False
-        self.are_points_calculated = False
         self.nullify()
 
+        self.control_points[index] = point
+
+        if index == 0:
+            self.partial_curves[0].replace_point(index, point)
+            return
+
+        if index == len(self.partial_curves) * self._degree:
+            print('!!!!!!!!!!1')
+            self.partial_curves[len(self.partial_curves) - 1].replace_point(
+                self._degree, point)
+            return
+
+        for curve_count in range(1, len(self.partial_curves) + 1):
+            if index < curve_count * self._degree:
+                if curve_count == 1:
+                    print('first')
+                    self.partial_curves[curve_count - 1].replace_point(index,
+                                                                       point)
+                else:
+                    print('second')
+                    self.partial_curves[curve_count - 1].replace_point(
+                        index % ((curve_count - 1) * self._degree), point)
+                return
+
+            if index == curve_count * self._degree:
+                print('third')
+                self.partial_curves[curve_count - 1].replace_point(
+                    self._degree, point)
+                self.partial_curves[curve_count].replace_point(0, point)
+
+                return
+
     def nullify(self):
+        self.are_points_calculated = False
+        self._spline_points = []
         for curve in self.partial_curves:
             curve.nullify()
-        self._spline_points = []
 
     def draw(self):
+        print(len(self.control_points))
         if len(self.control_points) < self.points_count:
             raise InvalidData(self.INCORRECT_COUNT_CONTROL_POINTS)
 

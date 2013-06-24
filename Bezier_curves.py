@@ -86,13 +86,15 @@ class BezierCurve:
         return elevation
 
     def replace_point(self, index, point):
+        print('index', index)
         self.control_points[index] = point
-        self.are_points_calculated = False
+        print(point.x, point.y, point.z)
         self.nullify()
 
     def nullify(self):
-        self.curve_points = []
-        self.derivative = []
+        self.are_points_calculated = False
+        self.curve = []
+        self.derivative = dict()
         self.derivative_control_points = []
         self.subdivision_left = dict()
         self.subdivision_right = dict()
