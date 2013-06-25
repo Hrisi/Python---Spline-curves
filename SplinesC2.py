@@ -25,15 +25,17 @@ class SplineC2:
 
         self.deBoor_points.append(point)
 
-    def _append_splineC1_point(self):
+    def _calculate_splineC1_point(self, movement=None):
         degree = self.splineC1.splineC0._degree
 
-        for index in range(0, degree - 1):
-            self.splineC1.append_deBoor_point(
-                self.deBoor_points[index])
+        if not movement:
+            for index in range(0, degree - 1):
+                self.splineC1.append_deBoor_point(
+                    self.deBoor_points[index])
 
         intervals = self.splineC1.splineC0.intervals
         intervals_count = len(intervals)
+        counter_splineC1 = degree - 1
 
         for index in range(0, intervals_count):
             if index == 0:
@@ -50,42 +52,55 @@ class SplineC2:
                            next_interval)
 
             if index > 0:
-                print('> 0')
-                numerator_two = ((intervals[index] +
-                                  next_interval) *
-                                 self.deBoor_points[index + degree - 2] +
-                                 previous_interval *
-                                 self.deBoor_points[index + degree - 1])
+                numerator = ((intervals[index] + next_interval) *
+                             self.deBoor_points[index + degree - 2] +
+                             previous_interval *
+                             self.deBoor_points[index + degree - 1])
 
-                calculated_point_two = numerator_two * (1 / denominator)
-                self.splineC1.append_deBoor_point(calculated_point_two)
+                calculated_point = numerator * (1 / denominator)
+
+                if not movement:
+                    self.splineC1.append_deBoor_point(calculated_point)
+                else:
+                    self.splineC1.replace_point(counter_splineC1,
+                                                calculated_point)
+                    counter_splineC1 += 1
 
             if index < intervals_count - 1:
-                print('< int')
-                numerator_one = (
-                    next_interval *
-                    self.deBoor_points[index + degree - 2] +
-                    (intervals[index] + previous_interval) *
-                    self.deBoor_points[index + degree - 1])
+                numerator = (next_interval *
+                             self.deBoor_points[index + degree - 2] +
+                             (intervals[index] + previous_interval) *
+                             self.deBoor_points[index + degree - 1])
 
-                calculated_point_one = numerator_one * (1 / denominator)
-                self.splineC1.append_deBoor_point(calculated_point_one)
+                calculated_point = numerator * (1 / denominator)
 
-        for index in range(degree - 1, 0, -1):
-            self.splineC1.append_deBoor_point(self.deBoor_points[
-                len(self.deBoor_points) - index])
+                if not movement:
+                    self.splineC1.append_deBoor_point(calculated_point)
+                else:
+                    self.splineC1.replace_point(counter_splineC1,
+                                                calculated_point)
+                    counter_splineC1 += 1
+
+        if not movement:
+            for index in range(degree - 1, 0, -1):
+                self.splineC1.append_deBoor_point(self.deBoor_points[
+                    len(self.deBoor_points) - index])
 
         self.control_points = self.splineC1.control_points
 
     def replace_point(self, index, point):
         self.deBoor_points[index] = point
-        self.nullify()
+        self._calculate_splineC1_point(True)
 
-    def nullify(self):
-        self.are_points_calculated = False
-        self.splineC1.deBoor_points = []
-        self.control_points = []
-        self.splineC1.nullify()
+        degree = self.splineC1.splineC0._degree
+        partial_curves_count = len(self.splineC1.splineC0.partial_curves)
+
+        if index < degree - 1:
+            self.splineC1.replace_point(index, point)
+
+        if index > len(self.deBoor_points) - degree:
+            self.splineC1.replace_point(index + partial_curves_count - 1,
+                                        point)
 
     def draw(self):
         if len(self.deBoor_points) < (
@@ -95,7 +110,7 @@ class SplineC2:
                 self.splineC1.INCORRECT_COUNT_DEBOOR_POINTS_MESSAGE)
 
         if not self.are_points_calculated:
-            self._append_splineC1_point()
+            self._calculate_splineC1_point()
             self.are_points_calculated = True
 
         return self.splineC1.draw()
