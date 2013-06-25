@@ -11,10 +11,13 @@ class BezierCurve:
         self.derivative = dict()
         self.subdivision_left = dict()
         self.subdivision_right = dict()
+        self.subdivision_parameter = -1
 
         self.to_be_drawn = False
         self.derivatives_to_be_drawn = set()
         self.control_polygon_to_be_drawn = False
+        self.subdivision_to_be_drawn = False
+        self.degree_elevation_to_be_drawn = False
         self.are_points_calculated = False
 
     def append_point(self, point):
