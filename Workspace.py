@@ -67,28 +67,23 @@ class Workspace(QtOpenGL.QGLWidget):
         glMatrixMode(GL_MODELVIEW)
         glLoadIdentity()
 
-        glFlush()
-
     def set_view_point(self):
+        glLoadIdentity()
         glTranslatef(0, 0, self.BASIC_ZOOM * self.zoom)
         glRotatef(self.angle_x, 1, 0, 0)
         glRotatef(self.angle_y, 0, 1, 0)
 
+    def gluProjection(self):
+        model = glGetDoublev(GL_MODELVIEW_MATRIX)
+        projection = glGetDoublev(GL_PROJECTION_MATRIX)
+        view = glGetIntegerv(GL_VIEWPORT)
+
+        return (model, projection, view)
+
     def paintGL(self):
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
         glMatrixMode(GL_MODELVIEW)
-        glLoadIdentity()
-        # position the camera to the correct place
 
-        # Enable antializing
-        glEnable(GL_LINE_SMOOTH)
-
-        glEnable(GL_BLEND)
-        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
-
-        glHint(GL_LINE_SMOOTH_HINT, GL_NICEST)
-        glFlush()
-        # Color in RGB
         self.set_view_point()
         glLineWidth(2)
 
@@ -98,7 +93,9 @@ class Workspace(QtOpenGL.QGLWidget):
         self.draw_splineC2()
 
         self.draw_derivative()
-        self.draw_control_polygon()
+        self.draw_subdivision()
+        self.draw_degree_elevation()
+        self.draw_curve_control_polygon()
         self.draw_Bezier_control_polygon()
         self.draw_deBoor_control_polygon()
 
@@ -110,6 +107,7 @@ class Workspace(QtOpenGL.QGLWidget):
             event.accept()
         elif event.button() == QtCore.Qt.RightButton:
             self.find_clicked_point(event.x(), event.y())
+            print('mouse')
         else:
             self.current_x, self.current_y = -1, -1
 
@@ -123,15 +121,23 @@ class Workspace(QtOpenGL.QGLWidget):
                 self.angle_y += (new_x - self.current_x) / 2
                 self.current_x, self.current_y = new_x, new_y
             if self.pressed_button == QtCore.Qt.RightButton:
-                model, projection, view = None, None, None
-                self.set_view_point(model, projection, view)
+                print('hahaha')
+                self.set_view_point()
+                project = self.gluProjection()
+                model = project[0]
+                projection = project[1]
+                view = project[2]
+
                 new_y = view[3] - new_y
 
                 point = gluUnProject(new_x, new_y, self.min_z,
                                      model, projection, view)
+                print(point[0], point[1], point[2])
+                print('object', self.clicked_object)
                 self.clicked_object.replace_point(
                     self.point_to_be_moved_index,
-                    Vec3D.Vec3D(point[0], point[1], points[2]))
+                    Vec3D.Vec3D(point[0], point[1], point[2]))
+                print(self.point_to_be_moved_index)
 
         event.accept()
         self.updateGL()
@@ -182,13 +188,20 @@ class Workspace(QtOpenGL.QGLWidget):
         object_.control_polygon_deBoor_to_be_drawn = (
             not object_.control_polygon_deBoor_to_be_drawn)
 
-    def change_curve_derivative_visibility(self, object_, degree):
+    def change_derivative_visibility(self, object_, degree):
         object_.derivatives_to_be_drawn.add(degree)
+
+    def change_subdivision_visibility(self, object_, parameter):
+        object_.subdivision_to_be_drawn = not object_.subdivision_to_be_drawn
+        object_.subdivision_parameter = parameter
+
+    def change_degree_elevation_visibility(self, object_):
+        object_.degree_elevation_to_be_drawn = (
+            not object_.degree_elevation_to_be_drawn)
 
     def drawGL(self, points, modeGL):
         glBegin(modeGL)
         for point in points:
-            #print(point.x, point.y, point.z, 'point')
             glVertex3f(point.x, point.y, point.z)
         glEnd()
 
@@ -200,29 +213,22 @@ class Workspace(QtOpenGL.QGLWidget):
     def draw_object(self, object_key, modeGL=GL_POINTS):
         glPointSize(2)
         object_ = self.object_to_be_drawn(object_key)
-        print(object_, 'obj')
         if object_:
-            print('here!')
             self.drawGL(object_.draw(), modeGL)
 
-    def drawGL_control_polygon(self, object_, red, green, blue, deBoor=None):
-        if not deBoor:
-            control_points = object_.control_points
-        else:
-            control_points = object_.deBoor_points
-
+    def drawGL_control_polygon(self, control_points):
         self.drawGL(control_points, GL_LINE_STRIP)
+
         glPointSize(8)
-        glColor3f(red, green, blue)
         self.drawGL(control_points, GL_POINTS)
 
-    def draw_control_polygon(self):
+    def draw_curve_control_polygon(self):
         glColor3f(0.3, 0.3, 0.1)
 
         for key in (self.OBJECT_BEZIER_CURVES, self.OBJECT_SPLINESC0):
             for object_ in self.objects[key]:
                 if object_.control_polygon_to_be_drawn:
-                    self.drawGL_control_polygon(object_, 0.3, 0.3, 0.1)
+                    self.drawGL_control_polygon(object_.control_points)
 
     def draw_Bezier_control_polygon(self):
         glColor3f(0.3, 0.3, 0.6)
@@ -230,24 +236,40 @@ class Workspace(QtOpenGL.QGLWidget):
         for key in (self.OBJECT_SPLINESC1, self.OBJECT_SPLINESC2):
             for object_ in self.objects[key]:
                 if object_.control_polygon_Bezier_to_be_drawn:
-                    self.drawGL_control_polygon(object_, 0.3, 0.3, 0.6)
+                    self.drawGL_control_polygon(object_.control_points)
 
     def draw_deBoor_control_polygon(self):
         glColor3f(1.0, 0.3, 0.6)
+        glLineWidth(4)
 
         for key in (self.OBJECT_SPLINESC1, self.OBJECT_SPLINESC2):
             for object_ in self.objects[key]:
                 if object_.control_polygon_deBoor_to_be_drawn:
-                    print('deBoor')
-                    self.drawGL_control_polygon(object_, 1.0, 0.3, 0.6, True)
+                    self.drawGL_control_polygon(object_.deBoor_points)
 
     def draw_derivative(self):
         glColor3f(1.0, 0.5, 0.5)
-        #derivative_to_be_drawn is a number of the derivative to be drawn
+
         for object_ in self.objects[self.OBJECT_BEZIER_CURVES]:
             for value in object_.derivatives_to_be_drawn:
-                print('der')
                 self.drawGL(object_.draw_derivative(value), GL_POINTS)
+
+    def draw_subdivision(self):
+        glColor3f(0.1, 0.5, 0.7)
+
+        for object_ in self.objects[self.OBJECT_BEZIER_CURVES]:
+            if object_.subdivision_to_be_drawn:
+                self.drawGL_control_polygon(
+                    object_.subdivision_left[object_.subdivision_parameter])
+                self.drawGL_control_polygon(
+                    object_.subdivision_right[object_.subdivision_parameter])
+
+    def draw_degree_elevation(self):
+        glColor3f(0.9, 0.1, 0.5)
+
+        for object_ in self.objects[self.OBJECT_BEZIER_CURVES]:
+            if object_.degree_elevation_to_be_drawn:
+                self.drawGL_control_polygon(object_.degree_elevation())
 
     def draw_Bezier_curve(self):
         glColor3f(1.0, 0.7, 0.5)
@@ -269,8 +291,9 @@ class Workspace(QtOpenGL.QGLWidget):
 
         self.draw_object(self.OBJECT_SPLINESC2)
 
-    def getDistance(self, control_point, model, projection, view):
-        projected_value = gluProjection(control_point, model, projection, view)
+    def getDistance(self, control_point, model, projection, view, x, y):
+        projected_value = gluProject(control_point.x, control_point.y,
+                                     control_point.z, model, projection, view)
         distance = ((projected_value[0] - x) * (projected_value[0] - x) +
                     (projected_value[1] - y) * (projected_value[1] - y))
 
@@ -281,29 +304,29 @@ class Workspace(QtOpenGL.QGLWidget):
             distance from the place where we click to the control points.
             Modifies screen coordinates to coordinates in 3D."""
 
-        control_points = []
         objects = []
+        control_points = []
         for key, value in self.objects.items():
             for object_ in value:
-                objects.append(object_)
                 if key in (self.OBJECT_BEZIER_CURVES, self.OBJECT_SPLINESC0):
-                    object_control_points = object_.control_points
+                    if object_.control_polygon_to_be_drawn:
+                        control_points.append(object_.control_points)
+                        objects.append(object_)
+
                 else:
-                    object_control_points = object_.deBoor_points
-
-                if object_.control_polygon_to_be_drawn:
-                    control_points += object_control_points
-
-        objects_control_points = zip(objects, control_points)
+                    if (object_.control_polygon_Bezier_to_be_drawn or
+                            object_.control_polygon_deBoor_to_be_drawn):
+                        control_points.append(object_.deBoor_points)
+                        objects.append(object_)
 
         self.set_view_point()
-
-        model = glGetDoublev(GL_MODELVIEW)
-        projection = glGetDoublev(GL_PROJECTION)
-        view = glGetIntegerv(GL_VIEWPORT)
+        project = self.gluProjection()
+        model = project[0]
+        projection = project[1]
+        view = project[2]
 
         y = view[3] - y
-        distance_result = self.getDistance(control_points[0], model,
+        distance_result = self.getDistance(control_points[0][0], model,
                                            projection, view, x, y)
         self.min_distance = distance_result[0]
         self.min_z = distance_result[1]
@@ -311,14 +334,16 @@ class Workspace(QtOpenGL.QGLWidget):
         self.clicked_object = objects[0]
         count = 0
 
-        for object_, point in object_control_points:
-            distance = self.getDistance(points, model, projection, view, x, y)
-            if (distance[0] < min_distance or
-                    (distance[0] == self.min_distance and
-                     distance[1] < self.min_z)):
-                self.min_distance = distance[0]
-                self.min_z = distance[1]
-                self.point_to_be_moved_index = count
-                self.clicked_object = object_
+        for points in control_points:
+            for index in range(len(points)):
+                distance = self.getDistance(points[index], model, projection,
+                                            view, x, y)
+                if (distance[0] < self.min_distance or
+                        (distance[0] == self.min_distance and
+                         distance[1] < self.min_z)):
+                    self.min_distance = distance[0]
+                    self.min_z = distance[1]
+                    self.point_to_be_moved_index = index
+                    self.clicked_object = objects[count]
 
             count += 1
