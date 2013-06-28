@@ -2,8 +2,8 @@ from PyQt4 import QtGui, QtCore
 
 
 class MainDialog(QtGui.QDialog):
-    DEGREE_LABEL = "Enter spline degree"
-    INTERVALS_LABEL = "Enter intervals"
+    DEGREE_LABEL = "Enter spline degree:"
+    INTERVALS_LABEL = "Enter intervals lengths:"
     ADD_POINTS_TEXT = "Add points"
     DRAW_TEXT = "Draw"
 
@@ -11,24 +11,24 @@ class MainDialog(QtGui.QDialog):
         super(MainDialog, self).__init__()
 
         self.setWindowTitle(title)
+        self.setMinimumSize(250, 300)
 
         self.init_degree_and_intervals()
-        self.init_scrollable_area()
+        self.init_scrollable_area(fixed_control_points)
 
         self.main_frame_layout = QtGui.QVBoxLayout()
         self.main_frame_layout.addWidget(self.degree_frame)
         self.main_frame_layout.addWidget(self.intervals_frame)
         self.main_frame_layout.addWidget(self.add_points_button)
         self.main_frame_layout.addWidget(self.scrollable)
+        self.main_frame_layout.addWidget(self.draw_button)
 
         self.setLayout(self.main_frame_layout)
 
         if fixed_control_points:
-            #self.degree_frame.show()
-            #self.intervals_frame.show()
             self.scrollable.hide()
+            self.draw_button.hide()
         else:
-            #self.scrollable.show()
             self.degree_frame.hide()
             self.intervals_frame.hide()
 
@@ -50,7 +50,7 @@ class MainDialog(QtGui.QDialog):
         self.intervals_frame = QtGui.QFrame()
         self.intervals_frame_layout = QtGui.QVBoxLayout()
         self.intervals_frame_layout.addWidget(self.intervals_label)
-        self.append_interval_input()
+        self.add_interval_input()
         self.intervals_label.setBuddy(self.intervals_line_edit[0])
 
         self.intervals_frame.setLayout(self.intervals_frame_layout)
@@ -64,46 +64,62 @@ class MainDialog(QtGui.QDialog):
         self.scrollable.setEnabled(True)
         self.add_points_widget = QtGui.QWidget()
         self.scrollable.setWidget(self.add_points_widget)
-        QtGui.QMainWindow.connect(self.add_points_button,
-                                  QtCore.SIGNAL('clicked()'),
-                                  self.set_visible)
+        self.add_points_button.clicked.connect(self.set_visible)
+
+        self.add_points_line_edit = []
+        self.add_points_layout = QtGui.QVBoxLayout()
+        self.point_coordinates_frame = []
+        self.point_coordinates_layout = []
+
+        self.add_point_input()
+
+        self.add_points_widget.setLayout(self.add_points_layout)
 
         self.draw_button = QtGui.QPushButton(self.DRAW_TEXT)
         self.draw_button.setDefault(True)
 
-        self.add_points_layout = QtGui.QVBoxLayout()
-        self.point_coordinates_upper_frame = QtGui.QFrame()
-        self.point_coordinates_upper_layout = QtGui.QHBoxLayout()
-        self.point_coordinates_lower_frame = QtGui.QFrame()
-        self.point_coordinates_lower_layout = QtGui.QHBoxLayout()
-
-        for index in range(0, 3):
-            self.point_coordinates_upper_layout.addWidget(QtGui.QInputDialog())
-            self.point_coordinates_lower_layout.addWidget(QtGui.QInputDialog())
-
-        self.point_coordinates_upper_frame.setLayout(
-            self.point_coordinates_upper_layout)
-        self.point_coordinates_lower_frame.setLayout(
-            self.point_coordinates_lower_layout)
-
-        self.add_points_layout.addWidget(self.point_coordinates_upper_frame)
-        self.add_points_layout.addWidget(self.point_coordinates_lower_frame)
-        self.add_points_layout.addWidget(QtGui.QPushButton(self.draw_button))
-
-        self.add_points_widget.setLayout(self.add_points_layout)
-
     def set_visible(self):
         print("Foo")
         self.scrollable.setVisible(True)
+        self.draw_button.setVisible(True)
 
-    def append_interval_input(self):
+    def add_interval_input(self):
         self.intervals_line_edit.append(QtGui.QLineEdit())
         self.intervals_line_edit[-1].textChanged.connect(self.add_interval)
         self.intervals_frame_layout.addWidget(self.intervals_line_edit[-1])
         self.intervals_line_edit[-1].setValidator(QtGui.QDoubleValidator())
-        #self.intervals_line_edit[0].setRange(0, 100000)
+
+    def add_point_input(self, fixed_control_points):
+        if (fixed_control_points and
+                fixed_control_points == len(add_points_line_edit)):
+            return
+
+        self.point_coordinates_frame.append(QtGui.QFrame())
+        self.point_coordinates_layout.append(QtGui.QHBoxLayout())
+        self.add_points_coordinate = []
+
+        for index in range(0, 3):
+            self.add_points_coordinate.append(QtGui.QLineEdit())
+            self.add_points_coordinate[index].setValidator(
+                QtGui.QDoubleValidator())
+
+        self.add_points_line_edit.append(self.add_points_coordinate)
+        self.add_points_line_edit[-1][2].textChanged.connect(self.add_point)
+
+        for index in range(0, 3):
+            self.point_coordinates_layout[-1].addWidget(
+                self.add_points_line_edit[-1][index])
+
+        self.point_coordinates_frame[-1].setLayout(
+            self.point_coordinates_layout[-1])
+        self.add_points_layout.addWidget(self.point_coordinates_frame[-1])
 
     def add_interval(self):
         if self.intervals_line_edit[-1].text() != "":
             self.intervals_line_edit[-1].textChanged.disconnect()
-            self.append_interval_input()
+            self.add_interval_input()
+
+    def add_point(self):
+        if self.add_points_line_edit[-1][2].text() != "":
+            self.add_points_line_edit[-1][2].textChanged.disconnect()
+            self.add_point_input()
