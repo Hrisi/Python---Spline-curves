@@ -11,7 +11,6 @@ class BezierCurve:
         self.derivative = dict()
         self.subdivision_left = dict()
         self.subdivision_right = dict()
-        self.subdivision_parameter = -1
 
         self.to_be_drawn = False
         self.derivatives_to_be_drawn = set()
@@ -73,6 +72,18 @@ class BezierCurve:
     def _derivative_calculation(self, degree):
         derivative_control_points = self.finite_difference(degree)
         self._curve_calculation(derivative_control_points, True)
+
+    def subdivision(self, parameter, points):
+        self.deCasteljau_algorithm(parameter, points)
+        subdivision = []
+
+        for index in range(0, len(points)):
+            subdivision.append(self.subdivision_left[param][index])
+
+        for index in range(0, len(points)):
+            subdivision.append(self.subdivision_right[param][index])
+
+        return subdivision
 
     def degree_elevation(self):
         degree = len(self.control_points) - 1
