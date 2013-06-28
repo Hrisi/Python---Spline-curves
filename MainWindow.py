@@ -9,62 +9,20 @@ import SplinesC0
 import MainDialog
 
 
+class InputException(Exception):
+    pass
+
+
 class MainWindow(QtGui.QMainWindow):
+    MISSING_COORDINATES_MESSAGE = "You haven't entered one coordinate or more."
+
     def __init__(self):
         super(MainWindow, self).__init__()
 
         self.environment()
         self.window_properties()
+        self.dialog = None
 
-        self.main_dialog = MainDialog.MainDialog()
-        self.main_dialog.hide()
-        #value, accepted = QtGui.QInputDialog.getInt(None, "foo", "bar")
-
-        #test
-        curve = Bezier_curves.BezierCurve()
-        splineC2 = SplinesC2.SplineC2(3, [[1, 2], [2, 7]])
-        splineC1 = SplinesC1.SplineC1(3, [[1, 2], [2, 7]])
-        splineC0 = SplinesC0.SplineC0(3, [[1, 2], [2, 7], [7, 10]])
-
-        points = [Vec3D.Vec3D(0, 0, 0),
-                  Vec3D.Vec3D(0, 1, 0),
-                  Vec3D.Vec3D(2, 1, 0),
-                  Vec3D.Vec3D(3, 0, 0),
-                  Vec3D.Vec3D(4, -1, 0),
-                  Vec3D.Vec3D(4, -1, 0),
-                  Vec3D.Vec3D(4, -1, 4),
-                  Vec3D.Vec3D(4, -1, 3),
-                  Vec3D.Vec3D(4, -1, -3),
-                  Vec3D.Vec3D(4, -1, 2)]
-        for index in range(0, 6):
-            curve.append_point(points[index])
-            splineC1.append_deBoor_point(points[index])
-
-        for index in range(0, 5):
-            splineC2.append_deBoor_point(points[index])
-        for index in range(0, 10):
-            splineC0.append_point(points[index])
-
-        self.workspace.add_Bezier_curve_object(curve)
-        self.workspace.change_curve_visibility(curve)
-        self.workspace.change_subdivision_visibility(curve, 0.3)
-        self.workspace.change_degree_elevation_visibility(curve)
-        #self.workspace.change_derivative_visibility(curve, 2)
-        #self.workspace.change_derivative_visibility(curve, 1)
-        #self.workspace.change_curve_subdivision_visibility(curve, 0.5)
-        #self.workspace.change_control_polygon_visibility(curve)
-
-        #self.workspace.add_splineC2_object(splineC2)
-        #self.workspace.change_curve_visibility(splineC2)
-        #self.workspace.change_Bezier_control_polygon_visibility(splineC2)
-        #self.workspace.change_deBoor_control_polygon_visibility(splineC2)
-        #self.workspace.add_splineC1_object(splineC1)
-        #self.workspace.change_curve_visibility(splineC1)
-        #self.workspace.add_splineC0_object(splineC0)
-        #self.workspace.change_curve_visibility(splineC0)
-        #self.workspace.change_control_polygon_visibility(splineC0)
-
-        #self.workspace.updateGL()
         self.show()
 
     def open_file(self):
@@ -116,7 +74,7 @@ class MainWindow(QtGui.QMainWindow):
 
         self.create_menu_item(
             'New', None, 'Ctrl+B', 'New Bezier_curve',
-            self.create_object_dialog, curve)
+            self.show_Bezier_curve_dialog, curve)
 
         view = menu_bar.addMenu('&View')
         view.addSeparator()
@@ -159,15 +117,53 @@ class MainWindow(QtGui.QMainWindow):
 
         menu_item.addAction(menu_item_action)
 
-    def create_object_dialog(self):
-        #if isinstance(object_, Bezier_curves.BezierCurve):
-            #self.workspace.add_Bezier_curve_object(object_)
-            #self.add_points_dialog(object_)
+    def get_control_points_from_dialog(self):
+        add_points_line_edit = []
 
-        self.main_dialog.show()
+        for index in range(0, len(self.dialog.add_points_line_edit) - 1):
+            add_points_line_edit.append(
+                self.dialog.add_points_line_edit[index])
+
+        for coordinates in add_points_line_edit:
+            for index in range(0, 3):
+                if coordinates[index] == "":
+                    print(":))")
+                    message_box = QtGui.QMessageBox()
+                    message_box.setText(self.MISSING_COORDINATES_MESSAGE)
+                    message_box.show()
+                    raise InputException(self.MISSING_COORDINATES_MESSAGE)
+
+        self.workspace.inserted_control_points = [
+            Vec3D.Vec3D(int(coordinates[0].text()),
+                        int(coordinates[1].text()),
+                        int(coordinates[2].text()))
+            for coordinates in add_points_line_edit]
+
+        self.create_Bezier_curve()
+
+    def show_Bezier_curve_dialog(self):
+        self.dialog = MainDialog.MainDialog('New Bezier curve')
+        self.dialog.show()
+
+        self.dialog.draw_button.clicked.connect(
+            self.get_control_points_from_dialog)
+
+    def create_Bezier_curve(self):
+        curve = Bezier_curves.BezierCurve()
+
+        for point in self.workspace.inserted_control_points:
+            curve.append_point(point)
+
+        print(curve.control_points)
+
+        self.workspace.change_curve_visibility(curve)
+        self.workspace.add_Bezier_curve_object(curve)
+
+        self.dialog.hide()
+        self.dialog = None
 
     def add_points_dialog(self, object_):
-        dialog = QtGui.QDialog()
+        dialog = QtGui.QDialog('Bezier Curves')
 
 
 def main():

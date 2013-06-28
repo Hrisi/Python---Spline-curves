@@ -12,9 +12,10 @@ class MainDialog(QtGui.QDialog):
 
         self.setWindowTitle(title)
         self.setMinimumSize(250, 300)
+        self.fixed_control_points = fixed_control_points
 
         self.init_degree_and_intervals()
-        self.init_scrollable_area(fixed_control_points)
+        self.init_scrollable_area()
 
         self.main_frame_layout = QtGui.QVBoxLayout()
         self.main_frame_layout.addWidget(self.degree_frame)
@@ -79,7 +80,6 @@ class MainDialog(QtGui.QDialog):
         self.draw_button.setDefault(True)
 
     def set_visible(self):
-        print("Foo")
         self.scrollable.setVisible(True)
         self.draw_button.setVisible(True)
 
@@ -89,9 +89,9 @@ class MainDialog(QtGui.QDialog):
         self.intervals_frame_layout.addWidget(self.intervals_line_edit[-1])
         self.intervals_line_edit[-1].setValidator(QtGui.QDoubleValidator())
 
-    def add_point_input(self, fixed_control_points):
-        if (fixed_control_points and
-                fixed_control_points == len(add_points_line_edit)):
+    def add_point_input(self):
+        if (self.fixed_control_points and
+                self.fixed_control_points == len(add_points_line_edit)):
             return
 
         self.point_coordinates_frame.append(QtGui.QFrame())

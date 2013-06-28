@@ -23,7 +23,7 @@ class Workspace(QtOpenGL.QGLWidget):
                         self.OBJECT_SPLINESC0: list(),
                         self.OBJECT_SPLINESC1: list(),
                         self.OBJECT_SPLINESC2: list()}
-        print(self.objects)
+
         self.zoom = 1
         self.angle_x, self.angle_y = 30, -40
         self.current_x, self.current_y = 0, 0
@@ -33,7 +33,7 @@ class Workspace(QtOpenGL.QGLWidget):
         self.min_distance = -1
         self.point_to_be_moved_index = None
         self.clicked_object = None
-        print('init')
+        self.inserted_control_points = []
 
     def add_splineC0_object(self, object_):
         self.objects[self.OBJECT_SPLINESC0].append(object_)
@@ -107,7 +107,6 @@ class Workspace(QtOpenGL.QGLWidget):
             event.accept()
         elif event.button() == QtCore.Qt.RightButton:
             self.find_clicked_point(event.x(), event.y())
-            print('mouse')
         else:
             self.current_x, self.current_y = -1, -1
 
@@ -121,7 +120,6 @@ class Workspace(QtOpenGL.QGLWidget):
                 self.angle_y += (new_x - self.current_x) / 2
                 self.current_x, self.current_y = new_x, new_y
             if self.pressed_button == QtCore.Qt.RightButton:
-                print('hahaha')
                 self.set_view_point()
                 project = self.gluProjection()
                 model = project[0]
@@ -132,12 +130,9 @@ class Workspace(QtOpenGL.QGLWidget):
 
                 point = gluUnProject(new_x, new_y, self.min_z,
                                      model, projection, view)
-                print(point[0], point[1], point[2])
-                print('object', self.clicked_object)
                 self.clicked_object.replace_point(
                     self.point_to_be_moved_index,
                     Vec3D.Vec3D(point[0], point[1], point[2]))
-                print(self.point_to_be_moved_index)
 
         event.accept()
         self.updateGL()
@@ -148,8 +143,6 @@ class Workspace(QtOpenGL.QGLWidget):
     def zoom_in(self):
         if self.zoom > self.MIN_ZOOM:
             self.zoom -= self.ZOOM_STEP
-
-        print(self.zoom)
 
         self.updateGL()
 
