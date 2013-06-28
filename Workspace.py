@@ -169,9 +169,15 @@ class Workspace(QtOpenGL.QGLWidget):
     def change_curve_visibility(self, object_):
         object_.to_be_drawn = not object_.to_be_drawn
 
-    def change_control_polygon_visibility(self, object_):
-        object_.control_polygon_to_be_drawn = (
-            not object_.control_polygon_to_be_drawn)
+    def show_control_polygon(self):
+        for curve in self.objects[self.OBJECT_BEZIER_CURVES]:
+            if not curve.control_polygon_to_be_drawn:
+                curve.control_polygon_to_be_drawn = True
+
+    def hide_control_polygon(self):
+        for curve in self.objects[self.OBJECT_BEZIER_CURVES]:
+            if curve.control_polygon_to_be_drawn:
+                curve.control_polygon_to_be_drawn = False
 
     def change_Bezier_control_polygon_visibility(self, object_):
         object_.control_polygon_Bezier_to_be_drawn = (
@@ -184,9 +190,15 @@ class Workspace(QtOpenGL.QGLWidget):
     def change_derivative_visibility(self, object_, degree):
         object_.derivatives_to_be_drawn.add(degree)
 
-    def change_subdivision_visibility(self, object_, parameter):
-        object_.subdivision_to_be_drawn = not object_.subdivision_to_be_drawn
-        object_.subdivision_parameter = parameter
+    def show_subdivision(self, parameter):
+        for curve in self.objects[self.OBJECT_BEZIER_CURVES]:
+            if not curve.subdivision_to_be_drawn:
+                curve.subdivision_to_be_drawn = parameter
+
+    def hide_subdivision(self):
+        for curve in self.objects[self.OBJECT_BEZIER_CURVES]:
+            if curve.subdivision_to_be_drawn:
+                curve.subdivision_to_be_drawn = False
 
     def change_degree_elevation_visibility(self, object_):
         object_.degree_elevation_to_be_drawn = (
@@ -252,10 +264,8 @@ class Workspace(QtOpenGL.QGLWidget):
 
         for object_ in self.objects[self.OBJECT_BEZIER_CURVES]:
             if object_.subdivision_to_be_drawn:
-                self.drawGL_control_polygon(
-                    object_.subdivision_left[object_.subdivision_parameter])
-                self.drawGL_control_polygon(
-                    object_.subdivision_right[object_.subdivision_parameter])
+                self.drawGL_control_polygon(object_.subdivision(
+                    object_.subdivision_to_be_drawn, object_.control_points))
 
     def draw_degree_elevation(self):
         glColor3f(0.9, 0.1, 0.5)

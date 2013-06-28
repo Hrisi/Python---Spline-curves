@@ -32,6 +32,7 @@ class MainDialog(QtGui.QDialog):
         else:
             self.degree_frame.hide()
             self.intervals_frame.hide()
+            self.add_points_button.hide()
 
     def init_degree_and_intervals(self):
         self.degree_label = QtGui.QLabel(self.DEGREE_LABEL)

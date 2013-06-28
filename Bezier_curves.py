@@ -78,10 +78,10 @@ class BezierCurve:
         subdivision = []
 
         for index in range(0, len(points)):
-            subdivision.append(self.subdivision_left[param][index])
+            subdivision.append(self.subdivision_left[parameter][index])
 
         for index in range(0, len(points)):
-            subdivision.append(self.subdivision_right[param][index])
+            subdivision.append(self.subdivision_right[parameter][index])
 
         return subdivision
 

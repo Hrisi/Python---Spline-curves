@@ -15,6 +15,7 @@ class InputException(Exception):
 
 class MainWindow(QtGui.QMainWindow):
     MISSING_COORDINATES_MESSAGE = "You haven't entered one coordinate or more."
+    NEGATIVE_DEGREE_MESSAGE = "You have inserted negative number. Try again!"
 
     def __init__(self):
         super(MainWindow, self).__init__()
@@ -75,6 +76,21 @@ class MainWindow(QtGui.QMainWindow):
         self.create_menu_item(
             'New', None, 'Ctrl+B', 'New Bezier_curve',
             self.show_Bezier_curve_dialog, curve)
+        self.create_menu_item(
+            'Show control_polygon', None, 'Ctrl+B', 'Shows control polygon',
+            self.workspace.show_control_polygon, curve)
+        self.create_menu_item(
+            'Hide control_polygon', None, 'Ctrl+B', 'Hides control polygon',
+            self.workspace.hide_control_polygon, curve)
+        self.create_menu_item(
+            'Calculate derivative', None, 'Ctrl+B', 'Calculates derivative.',
+            self.show_derivative_dialog, curve)
+        self.create_menu_item(
+            'Show subdivision', None, 'Ctrl+B', 'Subdivides curve.',
+            self.show_subdivision_dialog, curve)
+        self.create_menu_item(
+            'Hide subdivision', None, 'Ctrl+B', 'Hides subdivision of curve.',
+            self.workspace.hide_subdivision, curve)
 
         view = menu_bar.addMenu('&View')
         view.addSeparator()
@@ -134,9 +150,9 @@ class MainWindow(QtGui.QMainWindow):
                     raise InputException(self.MISSING_COORDINATES_MESSAGE)
 
         self.workspace.inserted_control_points = [
-            Vec3D.Vec3D(int(coordinates[0].text()),
-                        int(coordinates[1].text()),
-                        int(coordinates[2].text()))
+            Vec3D.Vec3D(float(coordinates[0].text()),
+                        float(coordinates[1].text()),
+                        float(coordinates[2].text()))
             for coordinates in add_points_line_edit]
 
         self.create_Bezier_curve()
@@ -162,8 +178,21 @@ class MainWindow(QtGui.QMainWindow):
         self.dialog.hide()
         self.dialog = None
 
-    def add_points_dialog(self, object_):
-        dialog = QtGui.QDialog('Bezier Curves')
+    def show_derivative_dialog(self):
+        degree, ok = QtGui.QInputDialog.getInt(
+            None, "Derivative", "Derivative degree:", 1, 1, 100)
+
+        if ok:
+            for curve in self.workspace.objects[
+                    self.workspace.OBJECT_BEZIER_CURVES]:
+                self.workspace.change_derivative_visibility(curve, degree)
+
+    def show_subdivision_dialog(self):
+        parameter, ok = QtGui.QInputDialog.getDouble(
+            None, "Subdivision", "Subdivision parameter:", 1, 0, 1)
+
+        if ok:
+            self.workspace.show_subdivision(parameter)
 
 
 def main():
