@@ -21,6 +21,7 @@ class BezierCurve:
 
     def append_point(self, point):
         self.control_points.append(point)
+        self.nullify()
 
     def deCasteljau_algorithm(self, param, points):
         algr_step = []
@@ -90,7 +91,7 @@ class BezierCurve:
         elevation = []
         elevation.append(self.control_points[0])
 
-        for i in range(1, degree):
+        for i in range(1, degree + 1):
             point = ((i * self.control_points[i - 1] + (degree + 1 - i) *
                      self.control_points[i]) * (1 / (degree + 1)))
             elevation.append(point)
@@ -121,6 +122,9 @@ class BezierCurve:
         return self.curve
 
     def draw_derivative(self, degree):
+        if degree >= len(self.control_points):
+            raise IndexError
+
         if not degree in self.derivative:
             self._derivative_calculation(degree)
 
