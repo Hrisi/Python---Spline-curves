@@ -86,8 +86,6 @@ class SplineC2:
                 self.splineC1.append_deBoor_point(self.deBoor_points[
                     len(self.deBoor_points) - index])
 
-        self.control_points = self.splineC1.control_points
-
     def replace_point(self, index, point):
         self.deBoor_points[index] = point
         self._calculate_splineC1_point(True)
@@ -113,4 +111,7 @@ class SplineC2:
             self._calculate_splineC1_point()
             self.are_points_calculated = True
 
-        return self.splineC1.draw()
+        draw_points = self.splineC1.draw()
+        self.control_points = self.splineC1.control_points
+
+        return draw_points

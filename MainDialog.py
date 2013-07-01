@@ -7,31 +7,34 @@ class MainDialog(QtGui.QDialog):
     ADD_POINTS_TEXT = "Add points"
     DRAW_TEXT = "Draw"
 
-    def __init__(self, title, fixed_control_points=None):
+    def __init__(self, title, splineC0, splineC1, splineC2):
         super(MainDialog, self).__init__()
 
         self.setWindowTitle(title)
         self.setMinimumSize(250, 300)
-        self.fixed_control_points = fixed_control_points
+        self.fixed_control_points = None
+        self.splineC0 = splineC0
+        self.splineC1 = splineC1
+        self.splineC2 = splineC2
 
         self.init_degree_and_intervals()
         self.init_scrollable_area()
 
         self.main_frame_layout = QtGui.QVBoxLayout()
         self.main_frame_layout.addWidget(self.degree_frame)
-        self.main_frame_layout.addWidget(self.intervals_frame)
+        self.main_frame_layout.addWidget(self.intervals_scrollable)
         self.main_frame_layout.addWidget(self.add_points_button)
         self.main_frame_layout.addWidget(self.scrollable)
         self.main_frame_layout.addWidget(self.draw_button)
 
         self.setLayout(self.main_frame_layout)
 
-        if fixed_control_points:
+        if splineC0 or splineC1 or splineC2:
             self.scrollable.hide()
             self.draw_button.hide()
         else:
             self.degree_frame.hide()
-            self.intervals_frame.hide()
+            self.intervals_scrollable.hide()
             self.add_points_button.hide()
 
     def init_degree_and_intervals(self):
@@ -49,9 +52,14 @@ class MainDialog(QtGui.QDialog):
         self.degree_frame_layout.addWidget(self.degree_line_edit)
         self.degree_frame.setLayout(self.degree_frame_layout)
 
-        self.intervals_frame = QtGui.QFrame()
+        self.intervals_scrollable = QtGui.QScrollArea()
+        self.intervals_scrollable.setWidgetResizable(True)
+        self.intervals_scrollable.setEnabled(True)
+        self.intervals_frame = QtGui.QWidget()
+        self.intervals_scrollable.setWidget(self.intervals_frame)
         self.intervals_frame_layout = QtGui.QVBoxLayout()
         self.intervals_frame_layout.addWidget(self.intervals_label)
+
         self.add_interval_input()
         self.intervals_label.setBuddy(self.intervals_line_edit[0])
 
@@ -90,9 +98,31 @@ class MainDialog(QtGui.QDialog):
         self.intervals_frame_layout.addWidget(self.intervals_line_edit[-1])
         self.intervals_line_edit[-1].setValidator(QtGui.QDoubleValidator())
 
+    def add_interval(self):
+        if self.intervals_line_edit[-1].text() != "":
+            self.intervals_line_edit[-1].textChanged.disconnect()
+            self.add_interval_input()
+
     def add_point_input(self):
+        if self.splineC0 and self.degree_line_edit.text() != "":
+            self.fixed_control_points = (
+                int(self.degree_line_edit.text()) *
+                (len(self.intervals_line_edit) - 1) + 1)
+
+        if self.splineC1 and self.degree_line_edit.text() != "":
+            print('HAHAHHA', len(self.intervals_line_edit))
+            self.fixed_control_points = (
+                2 * int(self.degree_line_edit.text()) +
+                (int(self.degree_line_edit.text()) - 1) *
+                (len(self.intervals_line_edit) - 3))
+
+        if self.splineC2 and self.degree_line_edit.text() != "":
+            self.fixed_control_points = (
+                2 * (int(self.degree_line_edit.text()) - 1) +
+                len(self.intervals_line_edit) - 2)
+
         if (self.fixed_control_points and
-                self.fixed_control_points == len(add_points_line_edit)):
+                self.fixed_control_points == len(self.add_points_line_edit)):
             return
 
         self.point_coordinates_frame.append(QtGui.QFrame())
@@ -114,11 +144,6 @@ class MainDialog(QtGui.QDialog):
         self.point_coordinates_frame[-1].setLayout(
             self.point_coordinates_layout[-1])
         self.add_points_layout.addWidget(self.point_coordinates_frame[-1])
-
-    def add_interval(self):
-        if self.intervals_line_edit[-1].text() != "":
-            self.intervals_line_edit[-1].textChanged.disconnect()
-            self.add_interval_input()
 
     def add_point(self):
         if self.add_points_line_edit[-1][2].text() != "":

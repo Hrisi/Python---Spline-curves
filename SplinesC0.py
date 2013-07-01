@@ -10,7 +10,7 @@ class SplineC0:
     NOT_INT_DATA_MESSAGE = "Please insert integers!"
     NONE_INTERVALS_MESSAGE = "Please insert intervals!"
     INCORRECT_COUNT_CONTROL_POINTS = "Please insert more control points!"
-    INCORRECT_INTERVAL_DIVISION = "Incorrect intervals inserted. Try again!"
+    NEGATIVE_INTERVAL_LENGTH = "Negative interval lengths inserted."
 
     def __init__(self, degree, intervals):
         if degree < 0:
@@ -22,20 +22,16 @@ class SplineC0:
         if not intervals:
             raise InvalidData(self.NONE_INTERVALS_MESSAGE)
 
-        if len(intervals) > 1:
-            for count in range(1, len(intervals)):
-                if intervals[count - 1][1] != intervals[count][0]:
-                    raise InvalidData(self.INCORRECT_INTERVAL_DIVISION)
+        for interval in intervals:
+            if interval < 0:
+                raise InvalidData(self.NEGATIVE_INTERVAL_LENGTH)
 
         self._degree = degree
         self.points_count = len(intervals) * degree + 1
         self.control_points = []
         self.partial_curves = []
-        self.intervals = []
+        self.intervals = intervals
         self._spline_points = []
-
-        for count in range(0, len(intervals)):
-            self.intervals.append(intervals[count][1] - intervals[count][0])
 
         for count in range(0, len(intervals)):
             self.partial_curves.append(Bezier_curves.BezierCurve())
