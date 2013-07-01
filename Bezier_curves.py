@@ -21,14 +21,14 @@ class BezierCurve:
 
     def append_point(self, point):
         self.control_points.append(point)
-        self.nullify()
+        self._nullify()
 
     def pop_last_point(self):
         if len(self.control_points) > 0:
             self.control_points.pop()
-            self.nullify()
+            self._nullify()
 
-    def deCasteljau_algorithm(self, param, points):
+    def _deCasteljau_algorithm(self, param, points):
         algr_step = []
         algr_step.append([point for point in points])
         degree = len(points)
@@ -51,7 +51,7 @@ class BezierCurve:
 
         return algorithm_result
 
-    def finite_difference(self, degree):
+    def _finite_difference(self, degree):
         algr_step = []
         algr_step.append([point for point in self.control_points])
         for step in range(1, degree + 1):
@@ -68,19 +68,19 @@ class BezierCurve:
         for t in range(self.RANGE_STEP + 1):
             parameter = t / self.RANGE_STEP
             if derivative:
-                self.derivative[key].append(self.deCasteljau_algorithm(
+                self.derivative[key].append(self._deCasteljau_algorithm(
                                             parameter,
                                             control_points))
             else:
-                self.curve.append(self.deCasteljau_algorithm(parameter,
+                self.curve.append(self._deCasteljau_algorithm(parameter,
                                   control_points))
 
     def _derivative_calculation(self, degree):
-        derivative_control_points = self.finite_difference(degree)
+        derivative_control_points = self._finite_difference(degree)
         self._curve_calculation(derivative_control_points, True)
 
     def subdivision(self, parameter, points):
-        self.deCasteljau_algorithm(parameter, points)
+        self._deCasteljau_algorithm(parameter, points)
         subdivision = []
 
         for index in range(0, len(points)):
@@ -106,12 +106,10 @@ class BezierCurve:
         return elevation
 
     def replace_point(self, index, point):
-        print('index', index)
         self.control_points[index] = point
-        print(point.x, point.y, point.z)
-        self.nullify()
+        self._nullify()
 
-    def nullify(self):
+    def _nullify(self):
         self.are_points_calculated = False
         self.curve = []
         self.derivative = dict()

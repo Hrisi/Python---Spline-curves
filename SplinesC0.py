@@ -57,7 +57,7 @@ class SplineC0:
                             condition].append_point(point)
 
     def replace_point(self, index, point):
-        self.nullify()
+        self._nullify()
 
         self.control_points[index] = point
 
@@ -87,14 +87,13 @@ class SplineC0:
 
                 return
 
-    def nullify(self):
+    def _nullify(self):
         self.are_points_calculated = False
         self._spline_points = []
         for curve in self.partial_curves:
-            curve.nullify()
+            curve._nullify()
 
     def draw(self):
-        print(len(self.control_points))
         if len(self.control_points) < self.points_count:
             raise InvalidData(self.INCORRECT_COUNT_CONTROL_POINTS)
 

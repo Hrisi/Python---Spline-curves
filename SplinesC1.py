@@ -72,7 +72,6 @@ class SplineC1:
                     partial_curve_count) or
                     partial_curve_count == len(self.splineC0.partial_curves)):
                 index_for_splineC0 = index + partial_curve_count - 1
-                print('index', index_for_splineC0)
                 break
 
         self.deBoor_points[index] = point
