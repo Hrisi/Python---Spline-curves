@@ -23,6 +23,11 @@ class BezierCurve:
         self.control_points.append(point)
         self.nullify()
 
+    def pop_last_point(self):
+        if len(self.control_points) > 0:
+            self.control_points.pop()
+            self.nullify()
+
     def deCasteljau_algorithm(self, param, points):
         algr_step = []
         algr_step.append([point for point in points])

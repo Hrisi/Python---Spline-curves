@@ -65,6 +65,9 @@ class MainWindow(QtGui.QMainWindow):
             'Add more points', None, 'Adds more points to the curve.',
             self.show_add_more_Bezier_points_dialog, curve)
         self.create_menu_item(
+            'Delete last point', None, 'Deletes last point from the curve.',
+            self.workspace.delete_last_point_from_Bezier_curve, curve)
+        self.create_menu_item(
             'Show control_polygon', None, 'Shows control polygon',
             self.workspace.show_control_polygon, curve)
         self.create_menu_item(

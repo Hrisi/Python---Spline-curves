@@ -169,6 +169,14 @@ class Workspace(QtOpenGL.QGLWidget):
     def change_curve_visibility(self, object_):
         object_.to_be_drawn = not object_.to_be_drawn
 
+    def delete_last_point_from_Bezier_curve(self):
+        for curve in self.objects[self.OBJECT_BEZIER_CURVES]:
+            self.change_curve_visibility(curve)
+            curve.pop_last_point()
+            self.change_curve_visibility(curve)
+
+        self.updateGL()
+
     def show_control_polygon(self, key=None):
         if key:
             default_key = key
@@ -179,6 +187,8 @@ class Workspace(QtOpenGL.QGLWidget):
             if not curve.control_polygon_to_be_drawn:
                 curve.control_polygon_to_be_drawn = True
 
+        self.updateGL()
+
     def hide_control_polygon(self, key=None):
         if key:
             default_key = key
@@ -188,6 +198,8 @@ class Workspace(QtOpenGL.QGLWidget):
         for curve in self.objects[default_key]:
             if curve.control_polygon_to_be_drawn:
                 curve.control_polygon_to_be_drawn = False
+
+        self.updateGL()
 
     def show_Bezier_control_polygon(self):
         for key in (self.OBJECT_SPLINESC0, self.OBJECT_SPLINESC1,
@@ -200,6 +212,8 @@ class Workspace(QtOpenGL.QGLWidget):
                         spline.control_polygon_Bezier_to_be_drawn = True
                         print(spline.control_polygon_Bezier_to_be_drawn)
 
+        self.updateGL()
+
     def hide_Bezier_control_polygon(self):
         for key in (self.OBJECT_SPLINESC1, self.OBJECT_SPLINESC1,
                     self.OBJECT_SPLINESC2):
@@ -210,11 +224,15 @@ class Workspace(QtOpenGL.QGLWidget):
                     if spline.control_polygon_Bezier_to_be_drawn:
                         spline.control_polygon_Bezier_to_be_drawn = False
 
+        self.updateGL()
+
     def show_deBoor_control_polygon(self):
         for key in (self.OBJECT_SPLINESC1, self.OBJECT_SPLINESC2):
             for spline in self.objects[key]:
                 if not spline.control_polygon_deBoor_to_be_drawn:
                     spline.control_polygon_deBoor_to_be_drawn = True
+
+        self.updateGL()
 
     def hide_deBoor_control_polygon(self):
         for key in (self.OBJECT_SPLINESC1, self.OBJECT_SPLINESC2):
@@ -222,25 +240,38 @@ class Workspace(QtOpenGL.QGLWidget):
                 if spline.control_polygon_deBoor_to_be_drawn:
                     spline.control_polygon_deBoor_to_be_drawn = False
 
+        self.updateGL()
+
+    def change_derivative_visibility(self, object_, degree):
+        object_.derivatives_to_be_drawn.add(degree)
+
     def show_subdivision(self, parameter):
         for curve in self.objects[self.OBJECT_BEZIER_CURVES]:
             if not curve.subdivision_to_be_drawn:
                 curve.subdivision_to_be_drawn = parameter
+
+        self.updateGL()
 
     def hide_subdivision(self):
         for curve in self.objects[self.OBJECT_BEZIER_CURVES]:
             if curve.subdivision_to_be_drawn:
                 curve.subdivision_to_be_drawn = False
 
+        self.updateGL()
+
     def show_degree_elevation(self):
         for curve in self.objects[self.OBJECT_BEZIER_CURVES]:
             if not curve.degree_elevation_to_be_drawn:
                 curve.degree_elevation_to_be_drawn = True
 
+        self.updateGL()
+
     def hide_degree_elevation(self):
         for curve in self.objects[self.OBJECT_BEZIER_CURVES]:
             if curve.degree_elevation_to_be_drawn:
                 curve.degree_elevation_to_be_drawn = False
+
+        self.updateGL()
 
     def drawGL(self, points, modeGL):
         glBegin(modeGL)
