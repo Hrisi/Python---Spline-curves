@@ -107,12 +107,27 @@ class BezierCurvesTest(unittest.TestCase):
         for index in range(0, 4):
             self.curve.append_point(points[index])
 
-        self.curve._derivative_calculation(2)
+        self.curve.draw_derivative(2)
 
         self.assertEqual(self.curve.derivative[2][0],
                          Vec3D.Vec3D(-1, -11, -8))
         self.assertEqual(self.curve.derivative[2][self.curve.RANGE_STEP],
                          Vec3D.Vec3D(0, 2, 3))
+
+    def test_raises_indexerror_while_drawing_derivative(self):
+        points = [Vec3D.Vec3D(0, 0, 0),
+                  Vec3D.Vec3D(2, 8, 6),
+                  Vec3D.Vec3D(3, 5, 4),
+                  Vec3D.Vec3D(4, 4, 5)]
+
+        for index in range(0, 4):
+            self.curve.append_point(points[index])
+
+        with self.assertRaises(IndexError):
+            self.curve.draw_derivative(4)
+
+        with self.assertRaises(IndexError):
+            self.curve.draw_derivative(6)
 
     def test_calculate_subdivision_parameters(self):
         points = [Vec3D.Vec3D(0, 0, 0),
@@ -170,6 +185,23 @@ class BezierCurvesTest(unittest.TestCase):
 
         self.assertEqual(elevation[1], Vec3D.Vec3D(0, 2 / 3, 2 / 3))
         self.assertEqual(len(elevation), 4)
+
+    def test_result_in_replace_point_method(self):
+        points = [Vec3D.Vec3D(0, 0, 0),
+                  Vec3D.Vec3D(2, 8, 6),
+                  Vec3D.Vec3D(3, 5, 4),
+                  Vec3D.Vec3D(4, 4, 5)]
+
+        for index in range(0, 3):
+            self.curve.append_point(points[index])
+
+        self.curve.append_point(Vec3D.Vec3D(4, 3, 3))
+        self.curve.draw()
+
+        self.curve.replace_point(3, points[3])
+        for index in range(0, 3):
+            self.assertEqual(self.curve.control_points[index], points[index])
+
 
 if __name__ == '__main__':
     unittest.main()
