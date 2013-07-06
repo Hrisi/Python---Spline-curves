@@ -4,7 +4,7 @@ from SplinesC0 import InvalidData
 
 class SplineC2:
     def __init__(self, degree, intervals):
-        if (degree <= 2):
+        if degree == 2:
             raise InvalidData(SplinesC1.SplineC1.NONE_EXISTING_SPLINE_MESSAGE)
 
         self.splineC1 = SplinesC1.SplineC1(degree, intervals)

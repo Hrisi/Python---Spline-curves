@@ -6,7 +6,7 @@ class SplineC1:
     INCORRECT_COUNT_DEBOOR_POINTS_MESSAGE = "Please insert more deBoor points!"
 
     def __init__(self, degree, intervals):
-        if (degree <= 1):
+        if degree in (0, 1):
             raise SplinesC0.InvalidData(self.NONE_EXISTING_SPLINE_MESSAGE)
 
         self.splineC0 = SplinesC0.SplineC0(degree, intervals)
@@ -25,7 +25,6 @@ class SplineC1:
             raise IndexError
 
         self.deBoor_points.append(point)
-        print(point)
 
     def _calculate_Bezier_points(self, counter, index):
         denominator = (self.splineC0.intervals[counter - 1] +
