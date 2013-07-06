@@ -110,7 +110,6 @@ class MainDialog(QtGui.QDialog):
                 (len(self.intervals_line_edit) - 1) + 1)
 
         if self.splineC1 and self.degree_line_edit.text() != "":
-            print('HAHAHHA', len(self.intervals_line_edit))
             self.fixed_control_points = (
                 2 * int(self.degree_line_edit.text()) +
                 (int(self.degree_line_edit.text()) - 1) *

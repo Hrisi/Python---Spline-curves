@@ -58,7 +58,6 @@ class Workspace(QtOpenGL.QGLWidget):
         glFlush()
 
     def resizeGL(self, width, height):
-        print(width, height)
         glViewport(0, 0, width, height)
         glMatrixMode(GL_PROJECTION)
         glLoadIdentity()
@@ -137,9 +136,6 @@ class Workspace(QtOpenGL.QGLWidget):
         event.accept()
         self.updateGL()
 
-    def reset(self):
-        print(self)
-
     def zoom_in(self):
         if self.zoom > self.MIN_ZOOM:
             self.zoom -= self.ZOOM_STEP
@@ -210,7 +206,6 @@ class Workspace(QtOpenGL.QGLWidget):
                 for spline in self.objects[key]:
                     if not spline.control_polygon_Bezier_to_be_drawn:
                         spline.control_polygon_Bezier_to_be_drawn = True
-                        print(spline.control_polygon_Bezier_to_be_drawn)
 
         self.updateGL()
 
@@ -315,8 +310,6 @@ class Workspace(QtOpenGL.QGLWidget):
 
         for key in (self.OBJECT_SPLINESC1, self.OBJECT_SPLINESC2):
             for object_ in self.objects[key]:
-                if key == self.OBJECT_SPLINESC2:
-                    print(object_.control_points)
                 if object_.control_polygon_Bezier_to_be_drawn:
                     self.drawGL_control_polygon(object_.control_points)
 

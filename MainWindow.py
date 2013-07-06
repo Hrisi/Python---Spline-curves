@@ -27,19 +27,6 @@ class MainWindow(QtGui.QMainWindow):
 
         self.show()
 
-    def open_file(self):
-        file_name = QtGui.QFileDialog.getOpenFileName(self, 'Open File', '.')
-        file_ = open(file_name)
-        data = file_.read()
-        #read from file and put the points in the right place
-        fname.close()
-
-    def save_file(self):
-        file_name = QtGui.QFileDialog.getSaveFileName(self, 'Save File', '.')
-        file_ = open(file_name, 'w')
-        #write inserted points into file
-        fname.close()
-
     def window_properties(self):
         self.setGeometry(1000, 640, 300, 300)
         self.setWindowTitle('3D Spline visualisation')
@@ -48,10 +35,6 @@ class MainWindow(QtGui.QMainWindow):
         file_ = menu_bar.addMenu('&File')
         file_.addSeparator()
 
-        self.create_menu_item('Open', None, 'Open file',
-                              self.open_file, file_, 'Ctrl+O')
-        self.create_menu_item('Save', None, 'Save file',
-                              self.save_file, file_, 'Ctrl+S')
         self.create_menu_item('Exit', None, 'Exit application',
                               QtCore.SLOT('close()'), file_, 'Ctrl+Q')
 
@@ -236,10 +219,8 @@ class MainWindow(QtGui.QMainWindow):
         for curve in self.workspace.objects[
                 self.workspace.OBJECT_BEZIER_CURVES]:
             self.workspace.change_curve_visibility(curve)
-            print(curve.to_be_drawn)
             self.add_control_points_to_object(curve)
             self.workspace.change_curve_visibility(curve)
-            print(curve.to_be_drawn)
 
         self.dialog.hide()
         self.dialog = None
